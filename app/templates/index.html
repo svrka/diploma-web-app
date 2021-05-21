@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Привет, {{ current_user.company_name }}</h1>
+{% for worker in workers %}
+<div>
+    <p>{{ worker.username }}</p>
+</div>
+{% endfor %}
+{% endblock %}
