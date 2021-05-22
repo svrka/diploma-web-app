@@ -43,7 +43,7 @@ def login():
         # login_user()
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
-            next_page = url_for(index)
+            next_page = url_for('index')
         return redirect(next_page)
     return render_template('login.html', title='Войти, как компания', form=company_form,
                            title2='Войти, как врач', form2=doctor_form)
@@ -61,7 +61,7 @@ def register():
         return redirect(url_for('index'))
     company_form = CompanyRegistrationForm()
     if company_form.validate_on_submit():
-        company = Company(name=company_form.company_name.data,
+        company = Company(name=company_form.username.data,
                           email=company_form.email.data)
         company.set_password(company_form.password.data)
         db.session.add(company)
