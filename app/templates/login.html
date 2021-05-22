@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Вход</h1>
+<h1>Войти, как компания</h1>
 <form action="" method="post" novalidate>
     {{ form.hidden_tag() }}
     <p>
@@ -22,4 +22,25 @@
     <p>{{ form.submit() }}</p>
 </form>
 <p>Новая компания? <a href="{{ url_for('register') }}">Нажмите для регистрации!</a></p>
+<h1>Войти, как врач</h1>
+<form action="" method="post" novalidate>
+    {{ form2.hidden_tag() }}
+    <p>
+        {{ form2.username.label }}<br>
+        {{ form2.username(size=32) }}<br>
+        {% for error in form2.username.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form2.password.label }}<br>
+        {{ form2.password(size=32) }}<br>
+        {% for error in form2.password.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>{{ form2.remember_me() }} {{ form2.remember_me.label }}</p>
+    <p>{{ form2.submit() }}</p>
+</form>
+<p>Новый врач? <a href="{{ url_for('register') }}">Нажмите для регистрации!</a></p>
 {% endblock %}
