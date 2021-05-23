@@ -61,7 +61,7 @@ def register():
         return redirect(url_for('index'))
     company_form = CompanyRegistrationForm()
     if company_form.validate_on_submit():
-        company = Company(name=company_form.username.data,
+        company = Company(name=company_form.name.data,
                           email=company_form.email.data)
         company.set_password(company_form.password.data)
         db.session.add(company)

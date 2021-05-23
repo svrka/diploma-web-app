@@ -14,7 +14,7 @@ class CompanyLoginForm(FlaskForm):
 
 
 class CompanyRegistrationForm(FlaskForm):
-    username = StringField('Имя компании', validators=[
+    name = StringField('Имя компании', validators=[
                                DataRequired('Заполните это поле')])
     email = StringField('Email', validators=[
                         DataRequired('Заполните это поле'), Email()])
