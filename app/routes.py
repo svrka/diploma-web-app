@@ -40,7 +40,7 @@ def login():
         if doctor is None or not doctor.check_password(doctor_form.password.data):
             flash('Неправильное имя пользователя или пароль')
             return redirect(url_for('login'))
-        # login_user()
+        login_user(doctor, remember=doctor_form.remember_me.data)
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
             next_page = url_for('index')
