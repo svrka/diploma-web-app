@@ -1,4 +1,5 @@
 from app import app, db
+from app.decorators import role_required
 from app.models import Company, Doctor
 from app.forms import DoctorLoginForm, DoctorRegistrationForm, CompanyLoginForm, CompanyRegistrationForm
 from flask import render_template, flash, redirect, url_for, request
@@ -55,7 +56,7 @@ def logout():
     return redirect(url_for('index'))
 
 
-@app.route('/register-company', methods=['GET', 'POST'])
+@app.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
@@ -79,3 +80,15 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html', title='Регистрация компании',
                            form=company_form, title2='Регистрация доктора', form2=doctor_form)
+
+
+@app.route('/doctor')
+@role_required(role='doctor')
+def doctor():
+    return render_template('doctor.html', title='Страница врача')
+
+
+@app.route('/company')
+@role_required(role='company')
+def company():
+    return render_template('company.html', title='Страница компании')
