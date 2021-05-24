@@ -9,13 +9,8 @@ from werkzeug.urls import url_parse
 
 @app.route('/')
 @app.route('/index')
-@login_required
 def index():
-    workers = [
-        {'username': 'Игорь'},
-        {'username': 'Алексей'}
-    ]
-    return render_template('index.html', title='Главная', workers=workers)
+    return render_template('index.html', title='Главная')
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -32,7 +27,7 @@ def login():
         login_user(company, remember=company_form.remember_me.data)
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
-            next_page = url_for('index')
+            next_page = url_for('company')
         return redirect(next_page)
     doctor_form = DoctorLoginForm()
     if doctor_form.validate_on_submit():
@@ -44,16 +39,17 @@ def login():
         login_user(doctor, remember=doctor_form.remember_me.data)
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
-            next_page = url_for('index')
+            next_page = url_for('doctor')
         return redirect(next_page)
     return render_template('login.html', title='Войти, как компания', form=company_form,
                            title2='Войти, как врач', form2=doctor_form)
 
 
 @app.route('/logout')
+@login_required
 def logout():
     logout_user()
-    return redirect(url_for('index'))
+    return redirect(url_for('login'))
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -82,13 +78,15 @@ def register():
                            form=company_form, title2='Регистрация доктора', form2=doctor_form)
 
 
-@app.route('/doctor')
+@app.route('/doctor/<username>')
 @role_required(role='doctor')
-def doctor():
-    return render_template('doctor.html', title='Страница врача')
+def doctor(username):
+    return render_template('doctor.html', title='Страница врача',
+                           doctor=Doctor.query.filter_by(id=current_user.id).first())
 
 
 @app.route('/company')
 @role_required(role='company')
 def company():
-    return render_template('company.html', title='Страница компании')
+    return render_template('company.html', title='Страница компании',
+                           company=Company.query.filter_by(id=current_user.id).first())

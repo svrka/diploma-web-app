@@ -11,8 +11,11 @@
 <body>
     <div>Диплом:
         <a href="{{ url_for('index') }}">Главная</a>
-        <a href="{{ url_for('doctor') }}">Доктор</a>
+        {% if current_user.role == 'company' %}
         <a href="{{ url_for('company') }}">Компания</a>
+        {% elif current_user.role == 'doctor' %}
+        <a href="{{ url_for('doctor', username=current_user.username) }}">Доктор</a>
+        {% endif %}
         {% if current_user.is_anonymous %}
         <a href="{{ url_for('login') }}">Войти</a>
         {% else %}
