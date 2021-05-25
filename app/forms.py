@@ -6,7 +6,7 @@ from wtforms.validators import DataRequired, ValidationError, Email, EqualTo
 
 class LoginForm(FlaskForm):
     username = StringField('Имя пользователя или email', validators=[
-                        DataRequired('Заполните это поле')])
+        DataRequired('Заполните это поле')])
     password = PasswordField('Пароль', validators=[
                              DataRequired('Заполните это поле')])
     remember_me = BooleanField('Запомнить')
@@ -21,23 +21,20 @@ class CompanyRegistrationForm(FlaskForm):
                         DataRequired('Заполните это поле'), Email()])
     password = PasswordField('Пароль', validators=[
                              DataRequired('Заполните это поле')])
-    password2 = PasswordField(
-        'Повторите пароль', validators=[DataRequired('Заполните это поле'), EqualTo('password')])
+    password2 = PasswordField('Повторите пароль', validators=[
+                              DataRequired('Заполните это поле'), EqualTo('password')])
     submit = SubmitField('Зарегистрироваться')
+
+    def validate_username(self, username):
+        doctor = Doctor.query.filter_by(username=username.data).first()
+        if doctor is not None:
+            raise ValidationError(
+                'Пожалуйста, используйте другое имя пользователя')
 
     def validate_email(self, email):
         company = Company.query.filter_by(email=email.data).first()
         if company is not None:
             raise ValidationError('Пожалуйста, используйте другую почту')
-
-
-class DoctorLoginForm(FlaskForm):
-    username = StringField('Имя пользователя или email', validators=[
-                           DataRequired('Заполните это поле')])
-    password = PasswordField('Пароль', validators=[
-                             DataRequired('Заполните это поле')])
-    remember_me = BooleanField('Запомнить')
-    submit = SubmitField('Войти')
 
 
 class DoctorRegistrationForm(FlaskForm):
