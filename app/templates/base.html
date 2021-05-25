@@ -12,7 +12,7 @@
     <div>Диплом:
         <a href="{{ url_for('index') }}">Главная</a>
         {% if current_user.role == 'company' %}
-        <a href="{{ url_for('company') }}">Компания</a>
+        <a href="{{ url_for('company', username=current_user.username) }}">Компания</a>
         {% elif current_user.role == 'doctor' %}
         <a href="{{ url_for('doctor', username=current_user.username) }}">Доктор</a>
         {% endif %}
