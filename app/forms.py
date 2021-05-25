@@ -1,7 +1,7 @@
 from app.models import Company, Doctor
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField
-from wtforms.validators import DataRequired, ValidationError, Email, EqualTo
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField
+from wtforms.validators import DataRequired, Length, ValidationError, Email, EqualTo
 
 
 class LoginForm(FlaskForm):
@@ -60,3 +60,19 @@ class DoctorRegistrationForm(FlaskForm):
         doctor = Doctor.query.filter_by(email=email.data).first()
         if doctor is not None:
             raise ValidationError('Пожалуйста, используйте другую почту')
+
+
+class EditCompanyForm(FlaskForm):
+    username = StringField('Имя пользователя (для входа)')
+    email = StringField('Почта', validators=[Email()])
+    name = StringField('Имя компании')
+    about = TextAreaField('О компании', validators=[Length(min=0, max=140)])
+    submit = SubmitField('Сохранить')
+
+
+class EditDoctorForm(FlaskForm):
+    username = StringField('Имя пользователя (для входа)')
+    email = StringField('Почта', validators=[Email()])
+    first_name = StringField('Имя')
+    second_name = StringField('Фамилия')
+    submit = SubmitField('Сохранить')

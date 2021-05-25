@@ -1,7 +1,7 @@
 from app import app, db
 from app.decorators import role_required
-from app.models import Company, Doctor, User
-from app.forms import DoctorLoginForm, DoctorRegistrationForm, LoginForm, CompanyRegistrationForm
+from app.models import User, Company, Doctor
+from app.forms import LoginForm, DoctorRegistrationForm, CompanyRegistrationForm, EditCompanyForm, EditDoctorForm
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
@@ -44,7 +44,7 @@ def logout():
     return redirect(url_for('login'))
 
 
-@app.route('/register-company', methods=['GET', 'POST'])
+@app.route('/register_company', methods=['GET', 'POST'])
 def register_company():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
@@ -60,7 +60,7 @@ def register_company():
     return render_template('register.html', title='Регистрация компании', form=form)
 
 
-@app.route('/register-doctor', methods=['GET', 'POST'])
+@app.route('/register_doctor', methods=['GET', 'POST'])
 def register_doctor():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
@@ -89,3 +89,45 @@ def doctor(username):
 def company(username):
     return render_template('company.html', title='Страница компании',
                            company=Company.query.filter_by(id=current_user.id).first())
+
+
+@app.route('/edit_company', methods=['GET', 'POST'])
+@role_required(role='company')
+def edit_company():
+    form = EditCompanyForm()
+    company = Company.query.filter_by(id=current_user.id).first()
+    if form.validate_on_submit():
+        company.username = form.username.data
+        company.email = form.email.data
+        company.name = form.name.data
+        company.about = form.about.data
+        db.session.commit()
+        flash('Данные сохранены')
+        return redirect(url_for('edit_company'))
+    elif request.method == 'GET':
+        form.username.data = company.username
+        form.email.data = company.email
+        form.name.data = company.name
+        form.about.data = company.about
+    return render_template('edit_user.html', title='Настройка компании', form=form)
+
+
+@app.route('/edit_doctor', methods=['GET', 'POST'])
+@role_required(role='doctor')
+def edit_doctor():
+    form = EditDoctorForm()
+    doctor = Doctor.query.filter_by(id=current_user.id).first()
+    if form.validate_on_submit():
+        doctor.username = form.username.data
+        doctor.email = form.email.data
+        doctor.first_name = form.first_name.data
+        doctor.second_name = form.second_name.data
+        db.session.commit()
+        flash('Данные сохранены')
+        return redirect(url_for('edit_doctor'))
+    elif request.method == 'GET':
+        form.username.data = doctor.username
+        form.email.data = doctor.email
+        form.first_name.data = doctor.first_name
+        form.second_name.data = doctor.second_name
+    return render_template('edit_user.html', title='Настройка доктора', form=form)

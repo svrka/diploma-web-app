@@ -24,6 +24,7 @@ class User(UserMixin, db.Model):
 class Company(User):
     id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
     name = db.Column(db.String(64), index=True)
+    about = db.Column(db.String(140))
     workers = db.relationship('Worker', backref='company', lazy='dynamic')
 
     def __repr__(self):
