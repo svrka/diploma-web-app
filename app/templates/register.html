@@ -5,6 +5,13 @@
 <form action="" method="post" novalidate>
     {{ form.hidden_tag() }}
     <p>
+        {{ form.username.label }}<br>
+        {{ form.username(size=32) }}<br>
+        {% for error in form.username.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
         {{ form.name.label }}<br>
         {{ form.name(size=32) }}<br>
         {% for error in form.name.errors %}
@@ -41,6 +48,20 @@
         {{ form2.username.label }}<br>
         {{ form2.username(size=32) }}<br>
         {% for error in form2.username.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form2.first_name.label }}<br>
+        {{ form2.first_name(size=32) }}<br>
+        {% for error in form2.first_name.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form2.second_name.label }}<br>
+        {{ form2.second_name(size=32) }}<br>
+        {% for error in form2.second_name.errors %}
         <span style="color: red;">[{{ error }}]</span>
         {% endfor %}
     </p>

@@ -20,9 +20,12 @@ def login():
     company_form = CompanyLoginForm()
     if company_form.validate_on_submit():
         company = Company.query.filter_by(
-            email=company_form.email.data).first()
+            username=company_form.email.data).first()
+        if company is None:
+            company = Company.query.filter_by(
+                email=company_form.email.data).first()
         if company is None or not company.check_password(company_form.password.data):
-            flash('Неправильные почта или пароль')
+            flash('Неправильно введены данные')
             return redirect(url_for('login'))
         login_user(company, remember=company_form.remember_me.data)
         next_page = request.args.get('next')
@@ -33,13 +36,16 @@ def login():
     if doctor_form.validate_on_submit():
         doctor = Doctor.query.filter_by(
             username=doctor_form.username.data).first()
+        if doctor is None:
+            doctor = Doctor.query.filter_by(
+                email=doctor_form.username.data).first()
         if doctor is None or not doctor.check_password(doctor_form.password.data):
-            flash('Неправильное имя пользователя или пароль')
+            flash('Неправильно введены данные')
             return redirect(url_for('login'))
         login_user(doctor, remember=doctor_form.remember_me.data)
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
-            next_page = url_for('doctor')
+            next_page = url_for('doctor', username=current_user.username)
         return redirect(next_page)
     return render_template('login.html', title='Войти, как компания', form=company_form,
                            title2='Войти, как врач', form2=doctor_form)
@@ -58,8 +64,8 @@ def register():
         return redirect(url_for('index'))
     company_form = CompanyRegistrationForm()
     if company_form.validate_on_submit():
-        company = Company(name=company_form.name.data,
-                          email=company_form.email.data)
+        company = Company(username=company_form.username.data, name=company_form.name.data,
+                          email=company_form.email.data, role='company')
         company.set_password(company_form.password.data)
         db.session.add(company)
         db.session.commit()
@@ -67,8 +73,9 @@ def register():
         return redirect(url_for('login'))
     doctor_form = DoctorRegistrationForm()
     if doctor_form.validate_on_submit():
-        doctor = Doctor(username=doctor_form.username.data,
-                        email=doctor_form.email.data)
+        doctor = Doctor(username=doctor_form.username.data, email=doctor_form.email.data,
+                        first_name=doctor_form.first_name.data, second_name=doctor_form.second_name.data,
+                        role='doctor')
         doctor.set_password(doctor_form.password.data)
         db.session.add(doctor)
         db.session.commit()

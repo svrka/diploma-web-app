@@ -5,7 +5,7 @@ from wtforms.validators import DataRequired, ValidationError, Email, EqualTo
 
 
 class CompanyLoginForm(FlaskForm):
-    email = StringField('Email', validators=[
+    email = StringField('Имя пользователя или email', validators=[
                         DataRequired('Заполните это поле')])
     password = PasswordField('Пароль', validators=[
                              DataRequired('Заполните это поле')])
@@ -14,8 +14,9 @@ class CompanyLoginForm(FlaskForm):
 
 
 class CompanyRegistrationForm(FlaskForm):
-    name = StringField('Имя компании', validators=[
-                               DataRequired('Заполните это поле')])
+    username = StringField('Имя пользователя (для входа)', validators=[
+                           DataRequired('Заполните это поле')])
+    name = StringField('Имя компании')
     email = StringField('Email', validators=[
                         DataRequired('Заполните это поле'), Email()])
     password = PasswordField('Пароль', validators=[
@@ -31,7 +32,7 @@ class CompanyRegistrationForm(FlaskForm):
 
 
 class DoctorLoginForm(FlaskForm):
-    username = StringField('Имя пользователя', validators=[
+    username = StringField('Имя пользователя или email', validators=[
                            DataRequired('Заполните это поле')])
     password = PasswordField('Пароль', validators=[
                              DataRequired('Заполните это поле')])
@@ -40,8 +41,10 @@ class DoctorLoginForm(FlaskForm):
 
 
 class DoctorRegistrationForm(FlaskForm):
-    username = StringField('Имя пользователя', validators=[
+    username = StringField('Имя пользователя (для входа)', validators=[
                            DataRequired('Заполните это поле')])
+    first_name = StringField('Имя')
+    second_name = StringField('Фамилия')
     email = StringField('Email', validators=[
                         DataRequired('Заполните это поле'), Email()])
     password = PasswordField('Пароль', validators=[
