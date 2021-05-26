@@ -38,4 +38,5 @@ nosetests.xml
 
 venv
 app.db
+logs
 main.log*

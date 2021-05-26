@@ -94,8 +94,8 @@ def company(username):
 @app.route('/edit_company', methods=['GET', 'POST'])
 @role_required(role='company')
 def edit_company():
-    form = EditCompanyForm()
     company = Company.query.filter_by(id=current_user.id).first()
+    form = EditCompanyForm(company.username, company.email)
     if form.validate_on_submit():
         company.username = form.username.data
         company.email = form.email.data
@@ -115,8 +115,8 @@ def edit_company():
 @app.route('/edit_doctor', methods=['GET', 'POST'])
 @role_required(role='doctor')
 def edit_doctor():
-    form = EditDoctorForm()
     doctor = Doctor.query.filter_by(id=current_user.id).first()
+    form = EditDoctorForm(doctor.username, doctor.email)
     if form.validate_on_submit():
         doctor.username = form.username.data
         doctor.email = form.email.data
