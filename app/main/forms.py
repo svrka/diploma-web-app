@@ -60,9 +60,17 @@ class EditDoctorForm(FlaskForm):
                     'Этот email используется другим аккаунтом')
 
 
-class AddWorker(FlaskForm):
+class AddWorkerForm(FlaskForm):
     first_name = StringField('Имя')
     second_name = StringField('Фамилия')
     middle_name = StringField('Отчество')
     email = StringField('Почта', validators=[Optional(), Email()])
     submit = SubmitField('Добавить')
+
+
+class EditWorkerForm(FlaskForm):
+    first_name = StringField('Имя')
+    second_name = StringField('Фамилия')
+    middle_name = StringField('Отчество')
+    email = StringField('Почта', validators=[Optional(), Email()])
+    submit = SubmitField('Сохранить')

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Работники компании {{ company.name }}</h1>
+<h1>Изменение данных работника</h1>
 <form action="" method="post" novalidate>
     {{ form.hidden_tag() }}
     <p>
@@ -34,8 +34,4 @@
     </p>
     <p>{{ form.submit() }}</p>
 </form>
-{% for worker in workers %}
-<p><a href="{{ url_for('main.worker_profile', id=worker.id) }}">{{ worker.second_name }} {{ worker.first_name }} {{
-        worker.middle_name }}</a></p>
-{% endfor %}
 {% endblock %}

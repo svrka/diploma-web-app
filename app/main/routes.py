@@ -2,7 +2,7 @@ from app import db
 from app.decorators import role_required
 from app.main import bp
 from app.models import Company, Doctor, Worker
-from app.main.forms import AddWorker, EditCompanyForm, EditDoctorForm
+from app.main.forms import AddWorkerForm, EditCompanyForm, EditDoctorForm, EditWorkerForm
 from flask import render_template, flash, redirect, url_for, request, current_app
 from flask_login import current_user, login_required
 
@@ -72,7 +72,7 @@ def edit_doctor():
 @bp.route('/workers', methods=['GET', 'POST'])
 @role_required(role='company')
 def workers():
-    form = AddWorker()
+    form = AddWorkerForm()
     if form.validate_on_submit():
         worker = Worker(first_name=form.first_name.data, middle_name=form.middle_name.data,
                         second_name=form.second_name.data, email=form.email.data, company_id=current_user.id)
@@ -85,8 +85,29 @@ def workers():
                            company=Company.query.filter_by(id=current_user.id).first(), workers=workers)
 
 
-# @bp.route('/worker/<id>')
-# @role_required(role='company')
-# def worker_profile():
-#     worker = Worker.query
-#     return redirect('worker_profile.html', title='Профиль работника', worker=worker)
+@bp.route('/worker/<id>')
+@role_required(role='company')
+def worker_profile(id):
+    return render_template('worker_profile.html', title='Профиль работника',
+                           worker=Worker.query.filter_by(id=id).first())
+
+
+@bp.route('/edit_worker/<id>', methods=['GET', 'POST'])
+@role_required(role='company')
+def edit_worker(id):
+    worker = Worker.query.filter_by(id=id).first()
+    form = EditWorkerForm()
+    if form.validate_on_submit():
+        worker.first_name = form.first_name.data
+        worker.middle_name = form.middle_name.data
+        worker.second_name = form.second_name.data
+        worker.email = form.email.data
+        db.session.commit()
+        flash('Данные сохранены')
+        return redirect(url_for('main.edit_worker', id=worker.id))
+    elif request.method == 'GET':
+        form.first_name.data = worker.first_name
+        form.middle_name.data = worker.middle_name
+        form.second_name.data = worker.second_name
+        form.email.data = worker.email
+    return render_template('edit_worker.html', title='Изменение данных работника', form=form)

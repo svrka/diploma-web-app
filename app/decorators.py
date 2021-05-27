@@ -15,7 +15,7 @@ def role_required(role):
                 return current_app.login_manager.unauthorized()
             elif not current_user.get_role == role:
                 flash('Эта страница не доступна для просмотра')
-                return redirect(url_for('index'))
+                return redirect(url_for('main.index'))
             return func(*args, **kwargs)
         return decorated_view
     return wrapper
