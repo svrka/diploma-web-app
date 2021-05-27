@@ -40,3 +40,4 @@ venv
 app.db
 logs
 main.log*
+.env

@@ -44,7 +44,8 @@ class Worker(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(64), index=True)
     second_name = db.Column(db.String(64), index=True)
-    email = db.Column(db.String(120), index=True, unique=True)
+    middle_name = db.Column(db.String(64), index=True)
+    email = db.Column(db.String(120), index=True)
     company_id = db.Column(db.Integer, db.ForeignKey('company.id'))
 
     def __repr__(self):

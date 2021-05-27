@@ -1,12 +1,14 @@
 from app.models import User
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField
-from wtforms.validators import Length, ValidationError, Email
+from wtforms.validators import DataRequired, Length, ValidationError, Email, Optional
 
 
 class EditCompanyForm(FlaskForm):
-    username = StringField('Имя пользователя (для входа)')
-    email = StringField('Почта', validators=[Email()])
+    username = StringField('Имя пользователя (для входа)', validators=[
+                           DataRequired('Заполните это поле')])
+    email = StringField('Почта', validators=[
+                        Email(), DataRequired('Заполните это поле')])
     name = StringField('Имя компании')
     about = TextAreaField('О компании', validators=[Length(min=0, max=140)])
     submit = SubmitField('Сохранить')
@@ -31,8 +33,10 @@ class EditCompanyForm(FlaskForm):
 
 
 class EditDoctorForm(FlaskForm):
-    username = StringField('Имя пользователя (для входа)')
-    email = StringField('Почта', validators=[Email()])
+    username = StringField('Имя пользователя (для входа)', validators=[
+                           DataRequired('Заполните это поле')])
+    email = StringField('Почта', validators=[
+                        Email(), DataRequired('Заполните это поле')])
     first_name = StringField('Имя')
     second_name = StringField('Фамилия')
     submit = SubmitField('Сохранить')
@@ -54,3 +58,11 @@ class EditDoctorForm(FlaskForm):
             if user is not None:
                 raise ValidationError(
                     'Этот email используется другим аккаунтом')
+
+
+class AddWorker(FlaskForm):
+    first_name = StringField('Имя')
+    second_name = StringField('Фамилия')
+    middle_name = StringField('Отчество')
+    email = StringField('Почта', validators=[Optional(), Email()])
+    submit = SubmitField('Добавить')
