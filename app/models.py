@@ -16,6 +16,7 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+    # Не факт, что это вообще нужно, но используется, если что, в декораторах
     @property
     def get_role(self):
         return self.role
@@ -46,10 +47,20 @@ class Worker(db.Model):
     second_name = db.Column(db.String(64), index=True)
     middle_name = db.Column(db.String(64), index=True)
     email = db.Column(db.String(120), index=True)
+    
     company_id = db.Column(db.Integer, db.ForeignKey('company.id'))
+    examinations = db.relationship('Examination', backref='worker', lazy='dynamic')
 
     def __repr__(self):
-        return '<Работник {} {}>'.format(self.first_name, self.second_name)
+        return '{}'.format(self.second_name)
+
+
+class Examination(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    blood_pressure = db.Column(db.String(10))
+    alcohol_level = db.Column(db.String(10))
+
+    worker_id = db.Column(db.Integer, db.ForeignKey('worker.id'))
 
 
 @login.user_loader

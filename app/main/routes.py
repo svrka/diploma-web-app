@@ -1,8 +1,8 @@
 from app import db
 from app.decorators import role_required
 from app.main import bp
-from app.models import Company, Doctor, Worker
-from app.main.forms import AddWorkerForm, EditCompanyForm, EditDoctorForm, EditWorkerForm
+from app.models import Company, Doctor, Examination, Worker
+from app.main.forms import AddWorkerForm, EditCompanyForm, EditDoctorForm, EditWorkerForm, ExaminationForm, SearchWorkerForm
 from flask import render_template, flash, redirect, url_for, request, current_app
 from flask_login import current_user, login_required
 
@@ -111,3 +111,21 @@ def edit_worker(id):
         form.second_name.data = worker.second_name
         form.email.data = worker.email
     return render_template('edit_worker.html', title='Изменение данных работника', form=form)
+
+
+@bp.route('/examination', methods=['GET', 'POST'])
+@role_required(role='company')
+def examination():
+    search_form = SearchWorkerForm()
+    exam_form = ExaminationForm()
+    if search_form.validate_on_submit():
+        worker = Worker.query.filter_by(
+            second_name=search_form.search.data).first()
+        return render_template('examination.html', title='Обследование', exam_form=exam_form, worker=worker)
+    if exam_form.validate_on_submit():
+        exam = Examination(blood_pressure=exam_form.blood_pressure.data,
+                           alcohol_level=exam_form.alcohol_level.data, worker_id=exam_form.worker_id.data)
+        db.session.add(exam)
+        db.session.commit()
+        flash('Данные отправлены')
+    return render_template('examination.html', title='Обследование', search_form=search_form)

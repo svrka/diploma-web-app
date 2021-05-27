@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Обследование
+    {% if worker %}
+    {{ worker.second_name }} {{ worker.first_name }}
+    {% endif %}
+</h1>
+{% if worker %}
+<form action="" method="POST">
+    {{ exam_form.hidden_tag() }}
+    <p>
+        {{ exam_form.blood_pressure.label }}<br>
+        {{ exam_form.blood_pressure(size=64) }}<br>
+        {% for error in exam_form.blood_pressure.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ exam_form.alcohol_level.label }}<br>
+        {{ exam_form.alcohol_level(size=64) }}<br>
+        {% for error in exam_form.alcohol_level.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    {{ exam_form.worker_id(value=worker.id, readonly=True, style='display: none') }}
+    <p>{{ exam_form.submit() }}</p>
+</form>
+{% else %}
+<form action="" method="POST">
+    {{ search_form.hidden_tag() }}
+    <p>
+        {{ search_form.search.label }}<br>
+        {{ search_form.search(size=64) }}<br>
+        {% for error in search_form.search.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>{{ search_form.submit() }}</p>
+</form>
+{% endif %}
+{% endblock %}
