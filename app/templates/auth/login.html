@@ -21,6 +21,6 @@
     <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
     <p>{{ form.submit() }}</p>
 </form>
-<p>Новая компания? <a href="{{ url_for('register_company') }}">Нажмите для регистрации!</a></p>
-<p>Новый доктор? <a href="{{ url_for('register_doctor') }}">Нажмите для регистрации!</a></p>
+<p>Новая компания? <a href="{{ url_for('auth.register_company') }}">Нажмите для регистрации!</a></p>
+<p>Новый доктор? <a href="{{ url_for('auth.register_doctor') }}">Нажмите для регистрации!</a></p>
 {% endblock %}

@@ -10,16 +10,16 @@
 
 <body>
     <div>Диплом:
-        <a href="{{ url_for('index') }}">Главная</a>
+        <a href="{{ url_for('main.index') }}">Главная</a>
         {% if current_user.role == 'company' %}
-        <a href="{{ url_for('company', username=current_user.username) }}">Компания</a>
+        <a href="{{ url_for('main.company', username=current_user.username) }}">Компания</a>
         {% elif current_user.role == 'doctor' %}
-        <a href="{{ url_for('doctor', username=current_user.username) }}">Доктор</a>
+        <a href="{{ url_for('main.doctor', username=current_user.username) }}">Доктор</a>
         {% endif %}
         {% if current_user.is_anonymous %}
-        <a href="{{ url_for('login') }}">Войти</a>
+        <a href="{{ url_for('auth.login') }}">Войти</a>
         {% else %}
-        <a href="{{ url_for('logout') }}">Выйти</a>
+        <a href="{{ url_for('auth.logout') }}">Выйти</a>
         {% endif %}
         <hr>
         {% with messages = get_flashed_messages() %}
