@@ -92,7 +92,7 @@ def worker_profile(id):
                            worker=Worker.query.filter_by(id=id).first())
 
 
-@bp.route('/edit_worker/<id>', methods=['GET', 'POST'])
+@bp.route('/<id>/edit_worker', methods=['GET', 'POST'])
 @role_required(role='company')
 def edit_worker(id):
     worker = Worker.query.filter_by(id=id).first()
