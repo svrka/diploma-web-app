@@ -1,4 +1,5 @@
 from app import db, login
+from datetime import datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -27,6 +28,7 @@ class Company(User):
     name = db.Column(db.String(64), index=True)
     about = db.Column(db.String(140))
     workers = db.relationship('Worker', backref='company', lazy='dynamic')
+    examintions = db.relationship('Examination', backref='compny', lazy='dynamic')
 
     def __repr__(self):
         return '<Компания {}>'.format(self.name)
@@ -59,8 +61,13 @@ class Examination(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     blood_pressure = db.Column(db.String(10))
     alcohol_level = db.Column(db.String(10))
+    datetime = db.Column(db.DateTime, default=datetime.utcnow)
 
+    company_id = db.Column(db.Integer, db.ForeignKey('company.id'))
     worker_id = db.Column(db.Integer, db.ForeignKey('worker.id'))
+
+    def __repr__(self):
+        return 'Дата: {}, Давление: {}, Алкоголь: {}'.format(self.datetime, self.blood_pressure, self.alcohol_level)
 
 
 @login.user_loader

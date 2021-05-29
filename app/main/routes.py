@@ -124,7 +124,8 @@ def examination():
         return render_template('examination.html', title='Обследование', exam_form=exam_form, worker=worker)
     if exam_form.validate_on_submit():
         exam = Examination(blood_pressure=exam_form.blood_pressure.data,
-                           alcohol_level=exam_form.alcohol_level.data, worker_id=exam_form.worker_id.data)
+                           alcohol_level=exam_form.alcohol_level.data, worker_id=exam_form.worker_id.data,
+                           company_id=current_user.id)
         db.session.add(exam)
         db.session.commit()
         flash('Данные отправлены')

@@ -4,4 +4,7 @@
 <h1>{{ worker.second_name }} {{ worker.first_name }} {{ worker.middle_name }}</h1>
 <p>{{ worker.email }}</p>
 <p><a href="{{ url_for('main.edit_worker', id=worker.id) }}">Изменить данные</a></p>
+{% for exam in worker.examinations %}
+<p>{{ exam }}</p>
+{% endfor %}
 {% endblock %}
