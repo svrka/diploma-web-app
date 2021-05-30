@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Обследования {{ date }}</h1>
+{% if company.id == current_user.id %}
+{% for exam in exams %}
+<a href="{{ url_for('main.worker_profile', id=exam.worker.id) }}">{{ exam.worker.second_name }} {{
+    exam.worker.first_name }}</a>
+<a href="{{ url_for('main.view_examination', id=exam.id) }}">{{ exam }}</a>
+<br>
+{% endfor %}
+{% endif %}
+{% endblock %}

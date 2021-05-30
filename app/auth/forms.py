@@ -26,8 +26,8 @@ class CompanyRegistrationForm(FlaskForm):
     submit = SubmitField('Зарегистрироваться')
 
     def validate_username(self, username):
-        doctor = Doctor.query.filter_by(username=username.data).first()
-        if doctor is not None:
+        company = Company.query.filter_by(username=username.data).first()
+        if company is not None:
             raise ValidationError(
                 'Пожалуйста, используйте другое имя пользователя')
 

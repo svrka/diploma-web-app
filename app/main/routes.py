@@ -23,8 +23,13 @@ def doctor(username):
 @bp.route('/company/<username>')
 @role_required(role='company')
 def company(username):
+    company = Company.query.filter_by(id=current_user.id).first()
+    dates = []
+    for examination in company.examinations:
+        if examination.datetime.date() not in dates:
+            dates.append(examination.datetime.date())
     return render_template('company.html', title='Страница компании',
-                           company=Company.query.filter_by(id=current_user.id).first())
+                           company=company, dates=dates)
 
 
 @bp.route('/edit_company', methods=['GET', 'POST'])
@@ -130,3 +135,21 @@ def examination():
         db.session.commit()
         flash('Данные отправлены')
     return render_template('examination.html', title='Обследование', search_form=search_form)
+
+
+@bp.route('/examinations/<date>')
+@role_required(role='company')
+def examinations_date(date):
+    company = Company.query.filter_by(id=current_user.id).first()
+    exams = []
+    for examination in company.examinations:
+        if str(examination.datetime.date()) == str(date):
+            exams.append(examination)
+    return render_template('examinations_date.html', title='Результаты обследования', date=date, exams=exams, company=company)
+
+
+@bp.route('/examination/<id>')
+@role_required(role='company')
+def view_examination(id):
+    examination = Examination.query.filter_by(id=id).first_or_404()
+    return render_template('view_examination.html', title='Просмотр обследования', examination=examination)

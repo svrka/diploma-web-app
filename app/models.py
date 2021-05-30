@@ -28,7 +28,7 @@ class Company(User):
     name = db.Column(db.String(64), index=True)
     about = db.Column(db.String(140))
     workers = db.relationship('Worker', backref='company', lazy='dynamic')
-    examintions = db.relationship('Examination', backref='compny', lazy='dynamic')
+    examinations = db.relationship('Examination', backref='company', lazy='dynamic')
 
     def __repr__(self):
         return '<Компания {}>'.format(self.name)
