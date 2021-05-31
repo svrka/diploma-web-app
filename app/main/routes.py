@@ -1,5 +1,5 @@
 from app import db
-from app.decorators import role_required
+from app.decorators import company_required, role_required, user_required
 from app.main import bp
 from app.models import Company, Doctor, Examination, Worker
 from app.main.forms import AddWorkerForm, EditCompanyForm, EditDoctorForm, EditWorkerForm, ExaminationForm, SearchWorkerForm
@@ -14,14 +14,14 @@ def index():
 
 
 @bp.route('/doctor/<username>')
-@role_required(role='doctor')
+@user_required
 def doctor(username):
     return render_template('doctor.html', title='Страница врача',
                            doctor=Doctor.query.filter_by(id=current_user.id).first())
 
 
 @bp.route('/company/<username>')
-@role_required(role='company')
+@user_required
 def company(username):
     company = Company.query.filter_by(id=current_user.id).first()
     dates = []
@@ -92,6 +92,7 @@ def workers():
 
 @bp.route('/worker/<id>')
 @role_required(role='company')
+@company_required
 def worker_profile(id):
     return render_template('worker_profile.html', title='Профиль работника',
                            worker=Worker.query.filter_by(id=id).first())
