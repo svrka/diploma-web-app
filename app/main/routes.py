@@ -1,5 +1,5 @@
 from app import db
-from app.decorators import company_required, role_required, user_required
+from app.decorators import exam_in_company, worker_in_company, role_required, user_required
 from app.main import bp
 from app.models import Company, Doctor, Examination, Worker
 from app.main.forms import AddWorkerForm, EditCompanyForm, EditDoctorForm, EditWorkerForm, ExaminationForm, SearchWorkerForm
@@ -92,7 +92,7 @@ def workers():
 
 @bp.route('/worker/<id>')
 @role_required(role='company')
-@company_required
+@worker_in_company
 def worker_profile(id):
     return render_template('worker_profile.html', title='Профиль работника',
                            worker=Worker.query.filter_by(id=id).first())
@@ -100,6 +100,7 @@ def worker_profile(id):
 
 @bp.route('/<id>/edit_worker', methods=['GET', 'POST'])
 @role_required(role='company')
+@worker_in_company
 def edit_worker(id):
     worker = Worker.query.filter_by(id=id).first()
     form = EditWorkerForm()
@@ -151,6 +152,7 @@ def examinations_date(date):
 
 @bp.route('/examination/<id>')
 @role_required(role='company')
+@exam_in_company
 def view_examination(id):
     examination = Examination.query.filter_by(id=id).first_or_404()
     return render_template('view_examination.html', title='Просмотр обследования', examination=examination)

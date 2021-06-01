@@ -37,15 +37,21 @@ def user_required(func):
     return decorated_view
 
 
-def company_required(func):
+def worker_in_company(func):
     @wraps(func)
     def decorated_view(*args, **kwargs):
-        result = False
         for worker in Company.query.filter_by(id=current_user.id).first().workers:
             if str(worker.id) == request.view_args.get('id'):
-                result = True
-        if result:
-            return func(*args, **kwargs)
-        else:
-            return abort(404)
+                return func(*args, **kwargs)
+        return abort(404)
+    return decorated_view
+
+
+def exam_in_company(func):
+    @wraps(func)
+    def decorated_view(*args, **kwargs):
+        for exam in Company.query.filter_by(id=current_user.id).first().examinations:
+            if str(exam.id) == request.view_args.get('id'):
+                return func(*args, **kwargs)
+        return abort(404)
     return decorated_view
