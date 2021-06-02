@@ -4,6 +4,8 @@
 <h1>Привет, {{ doctor.first_name }} {{ doctor.second_name }}!</h1>
 {% if doctor.id == current_user.id %}
 <p><a href="{{ url_for('main.edit_doctor') }}">Изменить данные</a></p>
-<p>{{ company }}</p>
+<p>
+    <a href="{{ url_for('main.company', username=company.username) }}">{{ company }}</a>
+</p>
 {% endif %}
 {% endblock %}

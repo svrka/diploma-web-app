@@ -1,4 +1,4 @@
-from app.models import Company
+from app.models import Company, Doctor
 from flask import current_app, flash, request, redirect, url_for, abort
 from flask_login import config, current_user
 from functools import wraps
@@ -32,7 +32,10 @@ def user_required(func):
         elif not current_user.is_authenticated:
             return current_app.login_manager.unauthorized()
         elif not current_user.username in str(request):
-            return abort(404)
+            if current_user.role == 'company' and not Company.query.get(current_user.id).doctor.username in str(request):
+                return abort(404)
+            elif current_user.role == 'doctor' and not Company.query.get(Doctor.query.get(current_user.id).company_id).username in str(request):
+                return abort(404)
         return func(*args, **kwargs)
     return decorated_view
 

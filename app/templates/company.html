@@ -6,7 +6,7 @@
 <p><a href="{{ url_for('main.edit_company') }}">Изменить данные</a></p>
 <p>
     {% if company.doctor %}
-    {{ company.doctor }}
+    <a href="{{ url_for('main.doctor', username=company.doctor.username) }}">{{ company.doctor }}</a>
     {% else %}
     <a href="{{ url_for('auth.register_doctor') }}">Добавить доктора</a>
     {% endif %}

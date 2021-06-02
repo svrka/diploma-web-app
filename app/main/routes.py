@@ -4,7 +4,7 @@ from app.main import bp
 from app.models import Company, Doctor, Examination, Worker
 from app.main.forms import AddWorkerForm, EditCompanyForm, EditDoctorForm, EditWorkerForm, ExaminationForm, SearchWorkerForm
 from flask import render_template, flash, redirect, url_for, request, current_app
-from flask_login import current_user, login_required
+from flask_login import current_user
 
 
 @bp.route('/')
@@ -16,15 +16,24 @@ def index():
 @bp.route('/doctor/<username>')
 @user_required
 def doctor(username):
-    doctor = Doctor.query.filter_by(id=current_user.id).first()
+    if current_user.role == 'doctor':
+        doctor = Doctor.query.get(current_user.id)
+        company = Company.query.get(doctor.company_id)
+    elif current_user.role == 'company':
+        company = Company.query.get(current_user.id)
+        doctor = company.doctor
     return render_template('doctor.html', title='Страница врача',
-                           doctor=doctor, company=Company.query.filter_by(id=doctor.company_id).first())
+                           doctor=doctor, company=company)
 
 
 @bp.route('/company/<username>')
 @user_required
 def company(username):
-    company = Company.query.filter_by(id=current_user.id).first()
+    if current_user.role == 'doctor':
+        doctor = Doctor.query.get(current_user.id)
+        company = Company.query.get(doctor.company_id)
+    elif current_user.role == 'company':
+        company = Company.query.get(current_user.id)
     dates = []
     for examination in company.examinations:
         if examination.datetime.date() not in dates:

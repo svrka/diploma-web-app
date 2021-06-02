@@ -36,11 +36,6 @@ class User(UserMixin, db.Model):
             return
         return User.query.get(id)
 
-    # Не факт, что это вообще нужно, но используется, если что, в декораторах
-    @property
-    def get_role(self):
-        return self.role
-
 
 class Company(User):
     id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
@@ -49,8 +44,8 @@ class Company(User):
     workers = db.relationship('Worker', backref='company', lazy='dynamic')
     examinations = db.relationship(
         'Examination', backref='company', lazy='dynamic')
-    doctor = db.relationship('Doctor', uselist=False, primaryjoin="Company.id == Doctor.company_id")
-    # doctor_id = db.Column(db.Integer, db.ForeignKey('doctor.id'))
+    doctor = db.relationship('Doctor', uselist=False,
+                             primaryjoin="Company.id == Doctor.company_id")
 
     def __repr__(self):
         return 'Компания {}'.format(self.name)
@@ -61,7 +56,6 @@ class Doctor(User):
     first_name = db.Column(db.String(64), index=True)
     second_name = db.Column(db.String(64), index=True)
     company_id = db.Column(db.Integer, db.ForeignKey('company.id'))
-    # company = db.relationship('Company', uselist=False)
 
     def __repr__(self) -> str:
         return 'Доктор {} {}'.format(self.first_name, self.second_name)
