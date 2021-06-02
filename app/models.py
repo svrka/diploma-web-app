@@ -1,6 +1,9 @@
 from app import db, login
 from datetime import datetime
+from flask import current_app
 from flask_login import UserMixin
+import jwt
+from time import time
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
@@ -17,6 +20,21 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+    def get_reset_password_token(self, expires_in=600):
+        return jwt.encode(
+            {'reset_password': self.id, 'exp': time() + expires_in},
+            current_app.config['SECRET_KEY'], algorithm='HS256'
+        )
+
+    @staticmethod
+    def verify_reset_password_token(token):
+        try:
+            id = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=[
+                            'HS256'])['reset_password']
+        except:
+            return
+        return User.query.get(id)
+
     # Не факт, что это вообще нужно, но используется, если что, в декораторах
     @property
     def get_role(self):
@@ -28,7 +46,8 @@ class Company(User):
     name = db.Column(db.String(64), index=True)
     about = db.Column(db.String(140))
     workers = db.relationship('Worker', backref='company', lazy='dynamic')
-    examinations = db.relationship('Examination', backref='company', lazy='dynamic')
+    examinations = db.relationship(
+        'Examination', backref='company', lazy='dynamic')
 
     def __repr__(self):
         return '<Компания {}>'.format(self.name)
@@ -49,9 +68,10 @@ class Worker(db.Model):
     second_name = db.Column(db.String(64), index=True)
     middle_name = db.Column(db.String(64), index=True)
     email = db.Column(db.String(120), index=True)
-    
+
     company_id = db.Column(db.Integer, db.ForeignKey('company.id'))
-    examinations = db.relationship('Examination', backref='worker', lazy='dynamic')
+    examinations = db.relationship(
+        'Examination', backref='worker', lazy='dynamic')
 
     def __repr__(self):
         return '{}'.format(self.second_name)

@@ -60,3 +60,15 @@ class DoctorRegistrationForm(FlaskForm):
         doctor = Doctor.query.filter_by(email=email.data).first()
         if doctor is not None:
             raise ValidationError('Пожалуйста, используйте другую почту')
+
+
+class ResetPasswordRequestForm(FlaskForm):
+    email = StringField('Почта', validators=[DataRequired(), Email()])
+    submit = SubmitField('Запросить смену пароля')
+
+
+class ResetPasswordForm(FlaskForm):
+    password = PasswordField('Пароль', validators=[DataRequired()])
+    password2 = PasswordField(
+        'Повторите пароль', validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Сменить пароль')
