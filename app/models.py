@@ -1,3 +1,4 @@
+from sqlalchemy.orm import backref
 from app import db, login
 from datetime import datetime
 from flask import current_app
@@ -48,18 +49,37 @@ class Company(User):
     workers = db.relationship('Worker', backref='company', lazy='dynamic')
     examinations = db.relationship(
         'Examination', backref='company', lazy='dynamic')
+    doctor = db.relationship('Doctor', uselist=False, primaryjoin="Company.id == Doctor.company_id")
+    # doctor_id = db.Column(db.Integer, db.ForeignKey('doctor.id'))
 
     def __repr__(self):
-        return '<Компания {}>'.format(self.name)
+        return 'Компания {}'.format(self.name)
 
 
 class Doctor(User):
     id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
     first_name = db.Column(db.String(64), index=True)
     second_name = db.Column(db.String(64), index=True)
+    company_id = db.Column(db.Integer, db.ForeignKey('company.id'))
+    # company = db.relationship('Company', uselist=False)
 
     def __repr__(self) -> str:
-        return '<Доктор {} {}>'.format(self.first_name, self.second_name)
+        return 'Доктор {} {}'.format(self.first_name, self.second_name)
+
+    def get_registration_token(self, expires_in=600):
+        return jwt.encode(
+            {'register_doctor': self.id, 'exp': time() + expires_in},
+            current_app.config['SECRET_KEY'], algorithm='HS256'
+        )
+
+    @staticmethod
+    def verify_registration_token(token):
+        try:
+            id = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=[
+                            'HS256'])['register_doctor']
+        except:
+            return
+        return Doctor.query.get(id)
 
 
 class Worker(db.Model):

@@ -16,8 +16,9 @@ def index():
 @bp.route('/doctor/<username>')
 @user_required
 def doctor(username):
+    doctor = Doctor.query.filter_by(id=current_user.id).first()
     return render_template('doctor.html', title='Страница врача',
-                           doctor=Doctor.query.filter_by(id=current_user.id).first())
+                           doctor=doctor, company=Company.query.filter_by(id=doctor.company_id).first())
 
 
 @bp.route('/company/<username>')

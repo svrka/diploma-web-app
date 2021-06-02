@@ -37,6 +37,12 @@ class CompanyRegistrationForm(FlaskForm):
             raise ValidationError('Пожалуйста, используйте другую почту')
 
 
+class RegisterDoctorForm(FlaskForm):
+    email = StringField('Почта', validators=[
+                        DataRequired('Заполните это поле'), Email()])
+    submit = SubmitField('Отправить ссылку на регистрацию')
+
+
 class DoctorRegistrationForm(FlaskForm):
     username = StringField('Имя пользователя (для входа)', validators=[
                            DataRequired('Заполните это поле')])
@@ -50,6 +56,10 @@ class DoctorRegistrationForm(FlaskForm):
                               DataRequired('Заполните это поле'), EqualTo('password')])
     submit = SubmitField('Зарегитрироваться')
 
+    def __init__(self, original_email, *args, **kwargs):
+        super(DoctorRegistrationForm, self).__init__(*args, **kwargs)
+        self.original_email = original_email
+
     def validate_username(self, username):
         doctor = Doctor.query.filter_by(username=username.data).first()
         if doctor is not None:
@@ -57,9 +67,11 @@ class DoctorRegistrationForm(FlaskForm):
                 'Пожалуйста, используйте другое имя пользователя')
 
     def validate_email(self, email):
-        doctor = Doctor.query.filter_by(email=email.data).first()
-        if doctor is not None:
-            raise ValidationError('Пожалуйста, используйте другую почту')
+        if email.data != self.original_email:
+            doctor = Doctor.query.filter_by(email=self.email.data).first()
+            if doctor is not None:
+                raise ValidationError(
+                    'Этот email используется другим аккаунтом')
 
 
 class ResetPasswordRequestForm(FlaskForm):
