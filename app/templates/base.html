@@ -15,6 +15,12 @@
         <a href="{{ url_for('main.company', username=current_user.username) }}">Компания</a>
         {% elif current_user.role == 'doctor' %}
         <a href="{{ url_for('main.doctor', username=current_user.username) }}">Доктор</a>
+        <a href="{{ url_for('main.examinations') }}">Обследования
+            {% set new_messages = current_user.new_messages() %}
+            {% if new_messages %}
+            <span id="message_count" class="badge">{{ new_messages }}</span>
+            {% endif %}
+        </a>
         {% endif %}
         {% if current_user.is_anonymous %}
         <a href="{{ url_for('auth.login') }}">Войти</a>
@@ -34,5 +40,14 @@
         {% block content %}{% endblock %}
     </div>
 </body>
+
+{% block scripts %}
+<script>
+    function set_message_count(n) {
+        $('#message_count').text(n);
+        $('#message_count').css('visibility', n ? 'visible' : 'hidden');
+    }
+</script>
+{% endblock %}
 
 </html>

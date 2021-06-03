@@ -3,6 +3,7 @@ from app.decorators import exam_in_company, worker_in_company, role_required, us
 from app.main import bp
 from app.models import Company, Doctor, Examination, Message, User, Worker
 from app.main.forms import AddWorkerForm, EditCompanyForm, EditDoctorForm, EditWorkerForm, ExaminationForm, MessageForm, SearchWorkerForm
+from datetime import datetime
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import current_user, login_required
 
@@ -196,3 +197,16 @@ def view_examination(id):
         return redirect(url_for('main.view_examination', id=id))
     return render_template('view_examination.html', title='Просмотр обследования', examination=examination,
                            form=form, messages=Message.query.filter_by(exam_id=id).all())
+
+
+@bp.route('/examinations')
+@login_required
+@role_required(role='doctor')
+def examinations():
+    current_user.last_message_read_time = datetime.utcnow()
+    db.session.commit()
+    company = Company.query.get(Doctor.query.get(current_user.id).company_id)
+    exams = Examination.query.filter_by(company_id=company.id).all()
+    return render_template('examinations.html', title='Обследования', exams=exams)
+
+

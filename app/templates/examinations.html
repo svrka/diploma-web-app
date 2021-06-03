@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Обследования</h1>
+{% for exam in exams %}
+<a href="{{ url_for('main.view_examination', id=exam.id) }}"><p>{{ exam }}</p></a>
+{% endfor %}
+{% endblock %}
