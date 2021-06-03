@@ -3,7 +3,9 @@
 {% block content %}
 <h1>{{ worker.second_name }} {{ worker.first_name }} {{ worker.middle_name }}</h1>
 <p>{{ worker.email }}</p>
+{% if current_user.id == worker.company_id %}
 <p><a href="{{ url_for('main.edit_worker', id=worker.id) }}">Изменить данные</a></p>
+{% endif %}
 {% for exam in worker.examinations %}
 <a href="{{ url_for('main.view_examination', id=exam.id) }}">{{ exam }}</a>
 {% endfor %}

@@ -3,8 +3,8 @@ from app.decorators import exam_in_company, worker_in_company, role_required, us
 from app.main import bp
 from app.models import Company, Doctor, Examination, Message, User, Worker
 from app.main.forms import AddWorkerForm, EditCompanyForm, EditDoctorForm, EditWorkerForm, ExaminationForm, MessageForm, SearchWorkerForm
-from flask import render_template, flash, redirect, url_for, request, current_app
-from flask_login import current_user
+from flask import render_template, flash, redirect, url_for, request
+from flask_login import current_user, login_required
 
 
 @bp.route('/')
@@ -14,6 +14,7 @@ def index():
 
 
 @bp.route('/doctor/<username>')
+@login_required
 @user_required
 def doctor(username):
     if current_user.role == 'doctor':
@@ -27,6 +28,7 @@ def doctor(username):
 
 
 @bp.route('/company/<username>')
+@login_required
 @user_required
 def company(username):
     if current_user.role == 'doctor':
@@ -43,6 +45,7 @@ def company(username):
 
 
 @bp.route('/edit_company', methods=['GET', 'POST'])
+@login_required
 @role_required(role='company')
 def edit_company():
     company = Company.query.filter_by(id=current_user.id).first()
@@ -64,6 +67,7 @@ def edit_company():
 
 
 @bp.route('/edit_doctor', methods=['GET', 'POST'])
+@login_required
 @role_required(role='doctor')
 def edit_doctor():
     doctor = Doctor.query.filter_by(id=current_user.id).first()
@@ -85,7 +89,7 @@ def edit_doctor():
 
 
 @bp.route('/workers', methods=['GET', 'POST'])
-@role_required(role='company')
+@login_required
 def workers():
     form = AddWorkerForm()
     if form.validate_on_submit():
@@ -95,13 +99,19 @@ def workers():
         db.session.commit()
         flash('Новый сотрудник добавлен')
         return redirect(url_for('main.workers'))
-    workers = Worker.query.filter_by(company_id=current_user.id).all()
+    if current_user.role == 'company':
+        company = Company.query.get(current_user.id)
+        workers = Worker.query.filter_by(company_id=current_user.id).all()
+    elif current_user.role == 'doctor':
+        doctor = Doctor.query.get(current_user.id)
+        company = Company.query.get(doctor.company_id)
+        workers = Worker.query.filter_by(company_id=doctor.company_id).all()
     return render_template('workers.html', title='Работники', form=form,
-                           company=Company.query.filter_by(id=current_user.id).first(), workers=workers)
+                           company=company, workers=workers)
 
 
 @bp.route('/worker/<id>')
-@role_required(role='company')
+@login_required
 @worker_in_company
 def worker_profile(id):
     return render_template('worker_profile.html', title='Профиль работника',
@@ -109,6 +119,7 @@ def worker_profile(id):
 
 
 @bp.route('/<id>/edit_worker', methods=['GET', 'POST'])
+@login_required
 @role_required(role='company')
 @worker_in_company
 def edit_worker(id):
@@ -131,6 +142,7 @@ def edit_worker(id):
 
 
 @bp.route('/examination', methods=['GET', 'POST'])
+@login_required
 @role_required(role='company')
 def examination():
     search_form = SearchWorkerForm()
@@ -150,9 +162,12 @@ def examination():
 
 
 @bp.route('/examinations/<date>')
-@role_required(role='company')
+@login_required
 def examinations_date(date):
-    company = Company.query.filter_by(id=current_user.id).first()
+    if current_user.role == 'company':
+        company = Company.query.get(current_user.id)
+    elif current_user.role == 'doctor':
+        company = Company.query.get(Doctor.query.get(current_user.id).company_id)
     exams = []
     for examination in company.examinations:
         if str(examination.datetime.date()) == str(date):
@@ -161,10 +176,10 @@ def examinations_date(date):
 
 
 @bp.route('/examination/<id>', methods=['GET', 'POST'])
-# @role_required(role='company')
+@login_required
 @exam_in_company
 def view_examination(id):
-    examination = Examination.query.filter_by(id=id).first_or_404()
+    examination = Examination.query.get(id)
     if current_user.role == 'company':
         user = User.query.get(examination.company.doctor.id)
     elif current_user.role == 'doctor':
