@@ -106,11 +106,11 @@ class Examination(db.Model):
     blood_pressure = db.Column(db.String(10))
     alcohol_level = db.Column(db.String(10))
     datetime = db.Column(db.DateTime, default=datetime.utcnow)
-    messages = db.relationship(
-        'Message', backref='examination', lazy='dynamic')
 
     company_id = db.Column(db.Integer, db.ForeignKey('company.id'))
     worker_id = db.Column(db.Integer, db.ForeignKey('worker.id'))
+    messages = db.relationship(
+        'Message', backref='examination', lazy='dynamic')
 
     def __repr__(self):
         return 'Дата: {}, Давление: {}, Алкоголь: {}'.format(self.datetime, self.blood_pressure, self.alcohol_level)

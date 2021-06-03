@@ -158,6 +158,7 @@ def examination():
         db.session.add(exam)
         db.session.commit()
         flash('Данные отправлены')
+        return redirect(url_for('main.view_examination', id=exam.id))
     return render_template('examination.html', title='Обследование', search_form=search_form)
 
 
@@ -167,7 +168,8 @@ def examinations_date(date):
     if current_user.role == 'company':
         company = Company.query.get(current_user.id)
     elif current_user.role == 'doctor':
-        company = Company.query.get(Doctor.query.get(current_user.id).company_id)
+        company = Company.query.get(
+            Doctor.query.get(current_user.id).company_id)
     exams = []
     for examination in company.examinations:
         if str(examination.datetime.date()) == str(date):
