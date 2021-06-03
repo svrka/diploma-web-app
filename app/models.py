@@ -15,6 +15,12 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128))
     role = db.Column(db.String(10), index=True)
 
+    messages_sent = db.relationship(
+        'Message', foreign_keys='Message.sender_id', backref='author', lazy='dynamic')
+    messages_received = db.relationship(
+        'Message', foreign_keys='Message.recipient_id', backref='recipient', lazy='dynamic')
+    last_message_read_time = db.Column(db.DateTime)
+
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
@@ -35,6 +41,10 @@ class User(UserMixin, db.Model):
         except:
             return
         return User.query.get(id)
+
+    def new_message(self):
+        last_read_time = self.last_message_read_time or datetime(1900, 1, 1)
+        return Message.query.filter_by(recipient=self).filter(Message.timestamp > last_read_time).count()
 
 
 class Company(User):
@@ -96,12 +106,27 @@ class Examination(db.Model):
     blood_pressure = db.Column(db.String(10))
     alcohol_level = db.Column(db.String(10))
     datetime = db.Column(db.DateTime, default=datetime.utcnow)
+    messages = db.relationship(
+        'Message', backref='examination', lazy='dynamic')
 
     company_id = db.Column(db.Integer, db.ForeignKey('company.id'))
     worker_id = db.Column(db.Integer, db.ForeignKey('worker.id'))
 
     def __repr__(self):
         return 'Дата: {}, Давление: {}, Алкоголь: {}'.format(self.datetime, self.blood_pressure, self.alcohol_level)
+
+
+class Message(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    recipient_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    worker_id = db.Column(db.Integer, db.ForeignKey('worker.id'))
+    exam_id = db.Column(db.Integer, db.ForeignKey('examination.id'))
+    body = db.Column(db.String(140))
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+
+    def __repr__(self) -> str:
+        return '{}: {}'.format(self.author.role, self.body)
 
 
 @login.user_loader

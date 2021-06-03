@@ -53,7 +53,11 @@ def worker_in_company(func):
 def exam_in_company(func):
     @wraps(func)
     def decorated_view(*args, **kwargs):
-        for exam in Company.query.filter_by(id=current_user.id).first().examinations:
+        if current_user.role == 'company':
+            id = current_user.id
+        elif current_user.role == 'doctor':
+            id = Doctor.query.get(current_user.id).company_id
+        for exam in Company.query.filter_by(id=id).first().examinations:
             if str(exam.id) == request.view_args.get('id'):
                 return func(*args, **kwargs)
         return abort(404)

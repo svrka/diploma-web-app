@@ -1,8 +1,8 @@
 from app import db
 from app.decorators import exam_in_company, worker_in_company, role_required, user_required
 from app.main import bp
-from app.models import Company, Doctor, Examination, Worker
-from app.main.forms import AddWorkerForm, EditCompanyForm, EditDoctorForm, EditWorkerForm, ExaminationForm, SearchWorkerForm
+from app.models import Company, Doctor, Examination, Message, User, Worker
+from app.main.forms import AddWorkerForm, EditCompanyForm, EditDoctorForm, EditWorkerForm, ExaminationForm, MessageForm, SearchWorkerForm
 from flask import render_template, flash, redirect, url_for, request, current_app
 from flask_login import current_user
 
@@ -160,9 +160,22 @@ def examinations_date(date):
     return render_template('examinations_date.html', title='Результаты обследования', date=date, exams=exams, company=company)
 
 
-@bp.route('/examination/<id>')
-@role_required(role='company')
+@bp.route('/examination/<id>', methods=['GET', 'POST'])
+# @role_required(role='company')
 @exam_in_company
 def view_examination(id):
     examination = Examination.query.filter_by(id=id).first_or_404()
-    return render_template('view_examination.html', title='Просмотр обследования', examination=examination)
+    if current_user.role == 'company':
+        user = User.query.get(examination.company.doctor.id)
+    elif current_user.role == 'doctor':
+        user = User.query.get(examination.company_id)
+    form = MessageForm()
+    if form.validate_on_submit():
+        msg = Message(author=current_user, recipient=user,
+                      body=form.message.data, worker_id=examination.worker_id, exam_id=id)
+        db.session.add(msg)
+        db.session.commit()
+        flash('Ваше сообщение отправлено')
+        return redirect(url_for('main.view_examination', id=id))
+    return render_template('view_examination.html', title='Просмотр обследования', examination=examination,
+                           form=form, messages=Message.query.filter_by(exam_id=id).all())

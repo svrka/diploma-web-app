@@ -4,6 +4,8 @@
 <h1>{{ company.name }}!</h1>
 {% if company.id == current_user.id %}
 <p><a href="{{ url_for('main.edit_company') }}">Изменить данные</a></p>
+<p><a href="{{ url_for('main.examination') }}">Запустить обследование</a></p>
+{% endif %}
 <p>
     {% if company.doctor %}
     <a href="{{ url_for('main.doctor', username=company.doctor.username) }}">{{ company.doctor }}</a>
@@ -12,9 +14,7 @@
     {% endif %}
 </p>
 <p><a href="{{ url_for('main.workers') }}">Работники</a></p>
-<p><a href="{{ url_for('main.examination') }}">Запустить обследование</a></p>
 {% for date in dates %}
 <p><a href="{{ url_for('main.examinations_date', date=date) }}">{{ date }}</a></p>
 {% endfor %}
-{% endif %}
 {% endblock %}

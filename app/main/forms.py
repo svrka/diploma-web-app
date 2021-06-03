@@ -96,3 +96,9 @@ class ExaminationForm(FlaskForm):
     worker_id = StringField('Номер работника', validators=[
                             DataRequired('Это поле должно быть заполнено')])
     submit = SubmitField('Отправить')
+
+
+class MessageForm(FlaskForm):
+    message = TextAreaField('Сообщение', validators=[
+                            DataRequired(), Length(min=0, max=140)])
+    submit = SubmitField('Отправить')
