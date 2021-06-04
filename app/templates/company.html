@@ -7,7 +7,7 @@
 <p><a href="{{ url_for('main.examination') }}">Запустить обследование</a></p>
 {% endif %}
 <p>
-    {% if company.doctor %}
+    {% if company.doctor.username %}
     <a href="{{ url_for('main.doctor', username=company.doctor.username) }}">{{ company.doctor }}</a>
     {% else %}
     <a href="{{ url_for('auth.register_doctor') }}">Добавить доктора</a>
