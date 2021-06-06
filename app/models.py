@@ -3,6 +3,7 @@ from app import db, login
 from datetime import datetime
 from flask import current_app
 from flask_login import UserMixin
+import json
 import jwt
 from time import time
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -14,12 +15,14 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
     role = db.Column(db.String(10), index=True)
+    last_message_read_time = db.Column(db.DateTime)
 
     messages_sent = db.relationship(
         'Message', foreign_keys='Message.sender_id', backref='author', lazy='dynamic')
     messages_received = db.relationship(
         'Message', foreign_keys='Message.recipient_id', backref='recipient', lazy='dynamic')
-    last_message_read_time = db.Column(db.DateTime)
+    notifications = db.relationship(
+        'Notification', backref='user', lazy='dynamic')
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -45,6 +48,12 @@ class User(UserMixin, db.Model):
     def new_messages(self):
         last_read_time = self.last_message_read_time or datetime(1900, 1, 1)
         return Message.query.filter_by(recipient=self).filter(Message.timestamp > last_read_time).count()
+
+    def add_notification(self, name, data, author, body):
+        n = Notification(name=name, payload_json=json.dumps(
+            data), user=self, author=author, body=body)
+        db.session.add(n)
+        return n
 
 
 class Company(User):
@@ -127,6 +136,19 @@ class Message(db.Model):
 
     def __repr__(self) -> str:
         return '{}: {}'.format(self.author.role, self.body)
+
+
+class Notification(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(128), index=True)
+    author = db.Column(db.String(24), index=True)
+    body = db.Column(db.String(140))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    timestamp = db.Column(db.Float, index=True, default=time)
+    payload_json = db.Column(db.Text)
+
+    def get_data(self):
+        return json.loads(str(self.payload_json))
 
 
 @login.user_loader

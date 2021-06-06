@@ -3,18 +3,15 @@
 {% block content %}
 <h1>Обследования {{ examination.worker }} {{ examination.datetime}}</h1>
 <p>{{ examination }}</p>
-<form action="" method="post">
-    {{ form.hidden_tag() }}
-    <p>
-        {{ form.message.label }}<br>
-        {{ form.message(size=32) }}<br>
-        {% for error in form.message.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
-    <p>{{ form.submit() }}</p>
+<form id="message_form" action="#">
+    <label for="message">Сообщение</label><br>
+    <textarea name="message" id="message" required size="32"></textarea><br>
+    <input id="submit" name="submit" type="submit" value="Отправить">
 </form>
-{% for msg in messages %}
-<p>{{ msg }}</p>
-{% endfor %}
+<br>
+<div id="new_message">
+    {% for msg in messages %}
+    <p>{{ msg }}</p>
+    {% endfor %}
+</div>
 {% endblock %}

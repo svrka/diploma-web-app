@@ -1,10 +1,10 @@
 from app import db
 from app.decorators import exam_in_company, worker_in_company, role_required, user_required
 from app.main import bp
-from app.models import Company, Doctor, Examination, Message, User, Worker
+from app.models import Company, Doctor, Examination, Message, Notification, User, Worker
 from app.main.forms import AddWorkerForm, EditCompanyForm, EditDoctorForm, EditWorkerForm, ExaminationForm, MessageForm, SearchWorkerForm
 from datetime import datetime
-from flask import render_template, flash, redirect, url_for, request
+from flask import render_template, flash, redirect, url_for, request, jsonify
 from flask_login import current_user, login_required
 
 
@@ -183,30 +183,58 @@ def examinations_date(date):
 @exam_in_company
 def view_examination(id):
     examination = Examination.query.get(id)
+    return render_template('view_examination.html', title='Просмотр обследования', examination=examination,
+                           messages=Message.query.filter_by(exam_id=id).all())
+
+
+@bp.route('/send_message', methods=['POST'])
+@login_required
+def send_message():
+    message = request.form['message']
+    exam_id = request.form['exam_id']
+
+    examination = Examination.query.get(exam_id)
     if current_user.role == 'company':
         user = User.query.get(examination.company.doctor.id)
     elif current_user.role == 'doctor':
         user = User.query.get(examination.company_id)
-    form = MessageForm()
-    if form.validate_on_submit():
-        msg = Message(author=current_user, recipient=user,
-                      body=form.message.data, worker_id=examination.worker_id, exam_id=id)
-        db.session.add(msg)
-        db.session.commit()
-        flash('Ваше сообщение отправлено')
-        return redirect(url_for('main.view_examination', id=id))
-    return render_template('view_examination.html', title='Просмотр обследования', examination=examination,
-                           form=form, messages=Message.query.filter_by(exam_id=id).all())
+
+    msg = Message(author=current_user, recipient=user, body=message,
+                  worker_id=examination.worker_id, exam_id=exam_id)
+    db.session.add(msg)
+    user.add_notification(
+        'new_messsage', user.new_messages(), msg.author.role, msg.body)
+    current_user.notifications.filter_by(author=user.role).delete()
+    db.session.commit()
+
+    return jsonify({
+        'message': message,
+        'author': current_user.role
+    })
 
 
-@bp.route('/examinations')
-@login_required
-@role_required(role='doctor')
+@ bp.route('/examinations')
+@ login_required
+@ role_required(role='doctor')
 def examinations():
     current_user.last_message_read_time = datetime.utcnow()
+    current_user.add_notification('new_message', 0, '', '')
     db.session.commit()
     company = Company.query.get(Doctor.query.get(current_user.id).company_id)
     exams = Examination.query.filter_by(company_id=company.id).all()
     return render_template('examinations.html', title='Обследования', exams=exams)
 
 
+@ bp.route('/notifications')
+@ login_required
+def notifications():
+    since = request.args.get('since', 0.0, type=float)
+    notifications = current_user.notifications.filter(
+        Notification.timestamp > since).order_by(Notification.timestamp.asc())
+    return jsonify([{
+        'name': n.name,
+        'data': n.get_data(),
+        'author': n.author,
+        'body': n.body,
+        'timestamp': n.timestamp
+    } for n in notifications])

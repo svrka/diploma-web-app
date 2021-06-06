@@ -6,6 +6,7 @@
     {% else %}
     <title>Добро пожаловать в Диплом</title>
     {% endif %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 </head>
 
 <body>
@@ -17,9 +18,10 @@
         <a href="{{ url_for('main.doctor', username=current_user.username) }}">Доктор</a>
         <a href="{{ url_for('main.examinations') }}">Обследования
             {% set new_messages = current_user.new_messages() %}
-            {% if new_messages %}
-            <span id="message_count" class="badge">{{ new_messages }}</span>
-            {% endif %}
+            <span id="message_count" class="badge" style="visibility: {% if new_messages %}visible
+                                                     {% else %}hidden{% endif %};">
+                {{ new_messages }}
+            </span>
         </a>
         {% endif %}
         {% if current_user.is_anonymous %}
@@ -43,10 +45,60 @@
 
 {% block scripts %}
 <script>
+    {% if current_user.is_authenticated %}
     function set_message_count(n) {
         $('#message_count').text(n);
         $('#message_count').css('visibility', n ? 'visible' : 'hidden');
     }
+
+    function add_new_messages(m) {
+        var msg = $("<p></p>").text(m);
+        $('#new_message').append(msg);
+    }
+
+    $(function () {
+        var since = 0;
+        setInterval(function () {
+            $.ajax('{{ url_for('main.notifications') }}?since=' + since).done(
+                function (notifications) {
+                    for (var i = 0; i < notifications.length; i++) {
+                        if (notifications[i].name == 'new_message')
+                            set_message_count(notifications[i].data);
+                            var message = notifications[i].author + ': ' + notifications[i].body;
+                            add_new_messages(message);
+                            since = notifications[i].timestamp;
+                    }
+                }
+            );
+        }, 10000);
+    });
+    {% endif %}
+
+    {% if examination %}
+    $(document).ready(function () {
+        $('#message_form').on('submit', function (e) {
+
+            $.ajax({
+
+                data: {
+                    message: $('#message').val(),
+                    exam_id: {{ examination.id }}
+                },
+                type: 'POST',
+                url: '{{ url_for('main.send_message') }}'
+
+            }).done(function (data) {
+                
+                var msg = data.author + ': ' + data.message;
+                add_new_messages(msg);
+
+            });
+
+            e.preventDefault();
+        })
+    });
+
+    {% endif %}
 </script>
 {% endblock %}
 

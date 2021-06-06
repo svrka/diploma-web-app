@@ -117,6 +117,7 @@ def doctor_registration(token):
         doctor.email = form.email.data
         doctor.first_name = form.first_name.data
         doctor.second_name = form.second_name.data
+        # doctor.role = 'doctor'
         doctor.set_password(form.password.data)
         db.session.commit()
         flash('Поздравляем с регистрацией!')
