@@ -1,4 +1,3 @@
-from sqlalchemy.orm import backref
 from app import db, login
 from datetime import datetime
 from flask import current_app
@@ -18,11 +17,9 @@ class User(UserMixin, db.Model):
     last_message_read_time = db.Column(db.DateTime)
 
     messages_sent = db.relationship(
-        'Message', foreign_keys='Message.sender_id', backref='author', lazy='dynamic')
+        'Message', foreign_keys='Message.author_id', backref='author', lazy='dynamic')
     messages_received = db.relationship(
         'Message', foreign_keys='Message.recipient_id', backref='recipient', lazy='dynamic')
-    notifications = db.relationship(
-        'Notification', backref='user', lazy='dynamic')
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -45,21 +42,24 @@ class User(UserMixin, db.Model):
             return
         return User.query.get(id)
 
+    # TODO: Change notifications badge count
     def new_messages(self):
-        last_read_time = self.last_message_read_time or datetime(1900, 1, 1)
-        return Message.query.filter_by(recipient=self).filter(Message.timestamp > last_read_time).count()
+        return Message.query.filter_by(recipient=self).filter(Message.status == True).count()
 
-    def add_notification(self, name, data, author, body):
-        n = Notification(name=name, payload_json=json.dumps(
-            data), user=self, author=author, body=body)
-        db.session.add(n)
-        return n
+    def add_message(self, body, exam_id, author_id, recipient_id, data):
+        msg = Message(body=body, exam_id=exam_id, author_id=author_id,
+                      recipient_id=recipient_id)
+        db.session.add(msg)
+        msg.payload_json = json.dumps(data())
+        return msg
 
 
 class Company(User):
     id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+
     name = db.Column(db.String(64), index=True)
     about = db.Column(db.String(140))
+
     workers = db.relationship('Worker', backref='company', lazy='dynamic')
     examinations = db.relationship(
         'Examination', backref='company', lazy='dynamic')
@@ -67,16 +67,19 @@ class Company(User):
                              primaryjoin="Company.id == Doctor.company_id")
 
     def __repr__(self):
+        # TODO: Company - change representation
         return 'Компания {}'.format(self.name)
 
 
 class Doctor(User):
     id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
-    first_name = db.Column(db.String(64), index=True)
-    second_name = db.Column(db.String(64), index=True)
     company_id = db.Column(db.Integer, db.ForeignKey('company.id'))
 
-    def __repr__(self) -> str:
+    first_name = db.Column(db.String(64), index=True)
+    second_name = db.Column(db.String(64), index=True)
+
+    def __repr__(self):
+        # TODO: Doctor - change representation
         return 'Доктор {} {}'.format(self.first_name, self.second_name)
 
     def get_registration_token(self, expires_in=600):
@@ -107,6 +110,7 @@ class Worker(db.Model):
         'Examination', backref='worker', lazy='dynamic')
 
     def __repr__(self):
+        # TODO: Worker - change representation
         return '{}'.format(self.second_name)
 
 
@@ -122,30 +126,24 @@ class Examination(db.Model):
         'Message', backref='examination', lazy='dynamic')
 
     def __repr__(self):
+        # TODO: Examination - change representation
         return 'Дата: {}, Давление: {}, Алкоголь: {}'.format(self.datetime, self.blood_pressure, self.alcohol_level)
 
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    recipient_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    worker_id = db.Column(db.Integer, db.ForeignKey('worker.id'))
-    exam_id = db.Column(db.Integer, db.ForeignKey('examination.id'))
-    body = db.Column(db.String(140))
-    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-
-    def __repr__(self) -> str:
-        return '{}: {}'.format(self.author.role, self.body)
-
-
-class Notification(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(128), index=True)
-    author = db.Column(db.String(24), index=True)
-    body = db.Column(db.String(140))
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    status = db.Column(db.Boolean, default=True)
+    date = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     timestamp = db.Column(db.Float, index=True, default=time)
+    body = db.Column(db.String(140))
     payload_json = db.Column(db.Text)
+
+    exam_id = db.Column(db.Integer, db.ForeignKey('examination.id'))
+    author_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    recipient_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    def __repr__(self):
+        return '{}: {}'.format(self.author.role, self.body)
 
     def get_data(self):
         return json.loads(str(self.payload_json))

@@ -53,28 +53,30 @@
 
     function add_new_messages(m) {
         var msg = $("<p></p>").text(m);
-        $('#new_message').append(msg);
+        $('#new_messages').prepend(msg);
     }
 
-    $(function () {
+    $(document).ready(function () {
         var since = 0;
         setInterval(function () {
-            $.ajax('{{ url_for('main.notifications') }}?since=' + since).done(
-                function (notifications) {
-                    for (var i = 0; i < notifications.length; i++) {
-                        if (notifications[i].name == 'new_message')
-                            set_message_count(notifications[i].data);
-                            var message = notifications[i].author + ': ' + notifications[i].body;
-                            add_new_messages(message);
-                            since = notifications[i].timestamp;
-                    }
+            $.ajax('{{ url_for('main.messages') }}?since=' + since).done(
+                function (messages) {
+                    for (var i = 0; i < messages.length; i++) {
+                        if (messages[i].status) {
+                            if ($('#new_messages').length) {
+                                var message = messages[i].author + ': ' + messages[i].body;
+                                add_new_messages(message);
+                            }
+                            set_message_count(messages[i].payload_json);
+                            since = messages[i].timestamp;
+                        }
+                    };
                 }
             );
         }, 10000);
     });
-    {% endif %}
 
-    {% if examination %}
+    {% if title == 'Просмотр обследования' %}
     $(document).ready(function () {
         $('#message_form').on('submit', function (e) {
 
@@ -89,16 +91,28 @@
 
             }).done(function (data) {
                 
+                $('#message').val('');
                 var msg = data.author + ': ' + data.message;
                 add_new_messages(msg);
 
             });
 
             e.preventDefault();
-        })
+        });
+
+        $('#message_form').keypress((e) => {
+
+            if (e.which === 13) {
+                $('#message_form').submit()
+            }
+
+        });
     });
 
     {% endif %}
+    {% endif %}
+
+    
 </script>
 {% endblock %}
 

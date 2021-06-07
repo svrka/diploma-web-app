@@ -1,8 +1,8 @@
 from app import db
 from app.decorators import exam_in_company, worker_in_company, role_required, user_required
 from app.main import bp
-from app.models import Company, Doctor, Examination, Message, Notification, User, Worker
-from app.main.forms import AddWorkerForm, EditCompanyForm, EditDoctorForm, EditWorkerForm, ExaminationForm, MessageForm, SearchWorkerForm
+from app.models import Company, Doctor, Examination, Message, User, Worker
+from app.main.forms import AddWorkerForm, EditCompanyForm, EditDoctorForm, EditWorkerForm, ExaminationForm, SearchWorkerForm
 from datetime import datetime
 from flask import render_template, flash, redirect, url_for, request, jsonify
 from flask_login import current_user, login_required
@@ -24,8 +24,7 @@ def doctor(username):
     elif current_user.role == 'company':
         company = Company.query.get(current_user.id)
         doctor = company.doctor
-    return render_template('doctor.html', title='Страница врача',
-                           doctor=doctor, company=company)
+    return render_template('doctor.html', title='Страница врача', doctor=doctor, company=company)
 
 
 @bp.route('/company/<username>')
@@ -41,15 +40,14 @@ def company(username):
     for examination in company.examinations:
         if examination.datetime.date() not in dates:
             dates.append(examination.datetime.date())
-    return render_template('company.html', title='Страница компании',
-                           company=company, dates=dates)
+    return render_template('company.html', title='Страница компании', company=company, dates=dates)
 
 
 @bp.route('/edit_company', methods=['GET', 'POST'])
 @login_required
 @role_required(role='company')
 def edit_company():
-    company = Company.query.filter_by(id=current_user.id).first()
+    company = Company.query.get(current_user.id)
     form = EditCompanyForm(company.username, company.email)
     if form.validate_on_submit():
         company.username = form.username.data
@@ -71,7 +69,7 @@ def edit_company():
 @login_required
 @role_required(role='doctor')
 def edit_doctor():
-    doctor = Doctor.query.filter_by(id=current_user.id).first()
+    doctor = Doctor.query.get(current_user.id)
     form = EditDoctorForm(doctor.username, doctor.email)
     if form.validate_on_submit():
         doctor.username = form.username.data
@@ -115,8 +113,7 @@ def workers():
 @login_required
 @worker_in_company
 def worker_profile(id):
-    return render_template('worker_profile.html', title='Профиль работника',
-                           worker=Worker.query.filter_by(id=id).first())
+    return render_template('worker_profile.html', title='Профиль работника', worker=Worker.query.get(id))
 
 
 @bp.route('/<id>/edit_worker', methods=['GET', 'POST'])
@@ -124,7 +121,7 @@ def worker_profile(id):
 @role_required(role='company')
 @worker_in_company
 def edit_worker(id):
-    worker = Worker.query.filter_by(id=id).first()
+    worker = Worker.query.get(id)
     form = EditWorkerForm()
     if form.validate_on_submit():
         worker.first_name = form.first_name.data
@@ -175,7 +172,7 @@ def examinations_date(date):
     for examination in company.examinations:
         if str(examination.datetime.date()) == str(date):
             exams.append(examination)
-    return render_template('examinations_date.html', title='Результаты обследования', date=date, exams=exams, company=company)
+    return render_template('examinations_date.html', title='Обследования {}'.format(date), date=date, exams=exams, company=company)
 
 
 @bp.route('/examination/<id>', methods=['GET', 'POST'])
@@ -183,8 +180,15 @@ def examinations_date(date):
 @exam_in_company
 def view_examination(id):
     examination = Examination.query.get(id)
+    # ? Redundant
+    current_user.last_message_read_time = datetime.utcnow()
+    messages = Message.query.filter_by(
+        recipient=current_user).filter(Message.status == True).all()
+    for msg in messages:
+        msg.status = False
+    db.session.commit()
     return render_template('view_examination.html', title='Просмотр обследования', examination=examination,
-                           messages=Message.query.filter_by(exam_id=id).all())
+                           messages=Message.query.filter_by(exam_id=id).order_by(Message.timestamp.desc()))
 
 
 @bp.route('/send_message', methods=['POST'])
@@ -199,12 +203,8 @@ def send_message():
     elif current_user.role == 'doctor':
         user = User.query.get(examination.company_id)
 
-    msg = Message(author=current_user, recipient=user, body=message,
-                  worker_id=examination.worker_id, exam_id=exam_id)
-    db.session.add(msg)
-    user.add_notification(
-        'new_messsage', user.new_messages(), msg.author.role, msg.body)
-    current_user.notifications.filter_by(author=user.role).delete()
+    user.add_message(message, exam_id, current_user.id,
+                     user.id, user.new_messages)
     db.session.commit()
 
     return jsonify({
@@ -213,28 +213,31 @@ def send_message():
     })
 
 
-@ bp.route('/examinations')
-@ login_required
-@ role_required(role='doctor')
+# TODO: Company access
+@bp.route('/examinations')
+@login_required
+@role_required(role='doctor')
 def examinations():
-    current_user.last_message_read_time = datetime.utcnow()
-    current_user.add_notification('new_message', 0, '', '')
-    db.session.commit()
-    company = Company.query.get(Doctor.query.get(current_user.id).company_id)
-    exams = Examination.query.filter_by(company_id=company.id).all()
+    exams = Examination.query.filter_by(
+        company_id=Doctor.query.get(current_user.id).company_id).all()
     return render_template('examinations.html', title='Обследования', exams=exams)
 
 
-@ bp.route('/notifications')
-@ login_required
-def notifications():
+@bp.route('/messages')
+@login_required
+def messages():
     since = request.args.get('since', 0.0, type=float)
-    notifications = current_user.notifications.filter(
-        Notification.timestamp > since).order_by(Notification.timestamp.asc())
+    messages = current_user.messages_received.filter(
+        Message.timestamp > since).order_by(Message.timestamp.asc())
     return jsonify([{
-        'name': n.name,
-        'data': n.get_data(),
-        'author': n.author,
-        'body': n.body,
-        'timestamp': n.timestamp
-    } for n in notifications])
+        'id': msg.id,
+        'status': msg.status,
+        'date': msg.date,
+        'timestamp': msg.timestamp,
+        'body': msg.body,
+        'payload_json': msg.payload_json,
+        'exam_id': msg.exam_id,
+        'author_id': msg.author_id,
+        'recipient_id': msg.recipient_id,
+        'author': msg.author.role,
+    } for msg in messages])
