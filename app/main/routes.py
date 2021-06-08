@@ -6,6 +6,7 @@ from app.main.forms import AddWorkerForm, EditCompanyForm, EditDoctorForm, EditW
 from datetime import datetime
 from flask import render_template, flash, redirect, url_for, request, jsonify
 from flask_login import current_user, login_required
+import json
 
 
 @bp.route('/')
@@ -143,6 +144,9 @@ def edit_worker(id):
 @login_required
 @role_required(role='company')
 def examination():
+    if not Company.query.get(current_user.id).doctor:
+        flash('Необходимо добавить доктора')
+        return redirect(url_for('main.company', username=current_user.username))
     search_form = SearchWorkerForm()
     exam_form = ExaminationForm()
     if search_form.validate_on_submit():
@@ -175,6 +179,17 @@ def examinations_date(date):
     return render_template('examinations_date.html', title='Обследования {}'.format(date), date=date, exams=exams, company=company)
 
 
+@bp.route('/examinations')
+@login_required
+def examinations():
+    if current_user.role == 'doctor':
+        exams = Examination.query.filter_by(
+            company_id=Doctor.query.get(current_user.id).company_id).all()
+    elif current_user.role == 'company':
+        exams = Company.query.get(current_user.id).examinations
+    return render_template('examinations.html', title='Обследования', exams=exams)
+
+
 @bp.route('/examination/<id>', methods=['GET', 'POST'])
 @login_required
 @exam_in_company
@@ -183,7 +198,7 @@ def view_examination(id):
     # ? Redundant
     current_user.last_message_read_time = datetime.utcnow()
     messages = Message.query.filter_by(
-        recipient=current_user).filter(Message.status == True).all()
+        recipient=current_user, exam_id=id).filter(Message.status == True).all()
     for msg in messages:
         msg.status = False
     db.session.commit()
@@ -213,31 +228,33 @@ def send_message():
     })
 
 
-# TODO: Company access
-@bp.route('/examinations')
-@login_required
-@role_required(role='doctor')
-def examinations():
-    exams = Examination.query.filter_by(
-        company_id=Doctor.query.get(current_user.id).company_id).all()
-    return render_template('examinations.html', title='Обследования', exams=exams)
-
-
 @bp.route('/messages')
 @login_required
 def messages():
-    since = request.args.get('since', 0.0, type=float)
+    reply = []
+    since = request.args.get('s', 0.0, type=float)
+    on_chat = request.args.get('c', type=bool)
+    exam_id = request.args.get('e', type=int)
     messages = current_user.messages_received.filter(
         Message.timestamp > since).order_by(Message.timestamp.asc())
-    return jsonify([{
-        'id': msg.id,
-        'status': msg.status,
-        'date': msg.date,
-        'timestamp': msg.timestamp,
-        'body': msg.body,
-        'payload_json': msg.payload_json,
-        'exam_id': msg.exam_id,
-        'author_id': msg.author_id,
-        'recipient_id': msg.recipient_id,
-        'author': msg.author.role,
-    } for msg in messages])
+    for msg in messages:
+        msg.payload_json = json.dumps(current_user.new_messages())
+
+        reply.append({
+            'id': msg.id,
+            'status': msg.status,
+            'date': msg.date,
+            'timestamp': msg.timestamp,
+            'body': msg.body,
+            'payload_json': msg.payload_json,
+            'exam_id': msg.exam_id,
+            'author_id': msg.author_id,
+            'recipient_id': msg.recipient_id,
+            'author': msg.author.role,
+        })
+
+        if on_chat and (msg.exam_id == exam_id):
+            msg.status = False
+
+    db.session.commit()
+    return jsonify(reply)

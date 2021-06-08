@@ -16,6 +16,10 @@
         <a href="{{ url_for('main.company', username=current_user.username) }}">Компания</a>
         {% elif current_user.role == 'doctor' %}
         <a href="{{ url_for('main.doctor', username=current_user.username) }}">Доктор</a>
+        {% endif %}
+        {% if current_user.is_anonymous %}
+        <a href="{{ url_for('auth.login') }}">Войти</a>
+        {% else %}
         <a href="{{ url_for('main.examinations') }}">Обследования
             {% set new_messages = current_user.new_messages() %}
             <span id="message_count" class="badge" style="visibility: {% if new_messages %}visible
@@ -23,10 +27,6 @@
                 {{ new_messages }}
             </span>
         </a>
-        {% endif %}
-        {% if current_user.is_anonymous %}
-        <a href="{{ url_for('auth.login') }}">Войти</a>
-        {% else %}
         <a href="{{ url_for('auth.logout') }}">Выйти</a>
         {% endif %}
         <hr>
@@ -58,16 +58,22 @@
 
     $(document).ready(function () {
         var since = 0;
+        var chat = false;
+        var exam_id = '';
+        if ($('#new_messages').length) {
+            chat = true;
+            exam_id = $(location).attr('pathname').split('/')[2];
+        };
         setInterval(function () {
-            $.ajax('{{ url_for('main.messages') }}?since=' + since).done(
+            $.ajax('{{ url_for('main.messages') }}?s=' + since + '&c=' + chat + '&e=' + exam_id).done(
                 function (messages) {
                     for (var i = 0; i < messages.length; i++) {
                         if (messages[i].status) {
-                            if ($('#new_messages').length) {
+                            if (($('#new_messages').length) && (messages[i].exam_id == parseInt(exam_id))) {
                                 var message = messages[i].author + ': ' + messages[i].body;
                                 add_new_messages(message);
-                            }
-                            set_message_count(messages[i].payload_json);
+                            } else set_message_count(messages[i].payload_json);
+                            // ? Almost always 0
                             since = messages[i].timestamp;
                         }
                     };

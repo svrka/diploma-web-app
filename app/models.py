@@ -42,9 +42,9 @@ class User(UserMixin, db.Model):
             return
         return User.query.get(id)
 
-    # TODO: Change notifications badge count
     def new_messages(self):
-        return Message.query.filter_by(recipient=self).filter(Message.status == True).count()
+        return Message.query.filter_by(recipient=self, status=True).with_entities(
+            Message.exam_id).distinct().count()
 
     def add_message(self, body, exam_id, author_id, recipient_id, data):
         msg = Message(body=body, exam_id=exam_id, author_id=author_id,
@@ -67,7 +67,6 @@ class Company(User):
                              primaryjoin="Company.id == Doctor.company_id")
 
     def __repr__(self):
-        # TODO: Company - change representation
         return 'Компания {}'.format(self.name)
 
 
@@ -79,7 +78,6 @@ class Doctor(User):
     second_name = db.Column(db.String(64), index=True)
 
     def __repr__(self):
-        # TODO: Doctor - change representation
         return 'Доктор {} {}'.format(self.first_name, self.second_name)
 
     def get_registration_token(self, expires_in=600):
@@ -110,7 +108,6 @@ class Worker(db.Model):
         'Examination', backref='worker', lazy='dynamic')
 
     def __repr__(self):
-        # TODO: Worker - change representation
         return '{}'.format(self.second_name)
 
 
@@ -126,7 +123,6 @@ class Examination(db.Model):
         'Message', backref='examination', lazy='dynamic')
 
     def __repr__(self):
-        # TODO: Examination - change representation
         return 'Дата: {}, Давление: {}, Алкоголь: {}'.format(self.datetime, self.blood_pressure, self.alcohol_level)
 
 
