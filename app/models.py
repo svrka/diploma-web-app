@@ -113,6 +113,7 @@ class Worker(db.Model):
 
 
 class Examination(db.Model):
+    # TODO: new examinations count
     id = db.Column(db.Integer, primary_key=True)
     blood_pressure = db.Column(db.String(10))
     alcohol_level = db.Column(db.String(10))

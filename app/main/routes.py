@@ -140,6 +140,33 @@ def edit_worker(id):
     return render_template('edit_worker.html', title='Изменение данных работника', form=form)
 
 
+@bp.route('/examinations')
+@login_required
+def examinations():
+    # TODO: Workers required
+    if current_user.role == 'doctor':
+        exams = Examination.query.filter_by(
+            company_id=Doctor.query.get(current_user.id).company_id).all()
+    elif current_user.role == 'company':
+        exams = Company.query.get(current_user.id).examinations
+    return render_template('examinations.html', title='Обследования', exams=exams)
+
+
+@bp.route('/examinations/<date>')
+@login_required
+def examinations_date(date):
+    if current_user.role == 'company':
+        company = Company.query.get(current_user.id)
+    elif current_user.role == 'doctor':
+        company = Company.query.get(
+            Doctor.query.get(current_user.id).company_id)
+    exams = []
+    for examination in company.examinations:
+        if str(examination.datetime.date()) == str(date):
+            exams.append(examination)
+    return render_template('examinations_date.html', title='Обследования {}'.format(date), date=date, exams=exams, company=company)
+
+
 @bp.route('/examination', methods=['GET', 'POST'])
 @login_required
 @role_required(role='company')
@@ -162,33 +189,6 @@ def examination():
         flash('Данные отправлены')
         return redirect(url_for('main.view_examination', id=exam.id))
     return render_template('examination.html', title='Обследование', search_form=search_form)
-
-
-@bp.route('/examinations/<date>')
-@login_required
-def examinations_date(date):
-    if current_user.role == 'company':
-        company = Company.query.get(current_user.id)
-    elif current_user.role == 'doctor':
-        company = Company.query.get(
-            Doctor.query.get(current_user.id).company_id)
-    exams = []
-    for examination in company.examinations:
-        if str(examination.datetime.date()) == str(date):
-            exams.append(examination)
-    return render_template('examinations_date.html', title='Обследования {}'.format(date), date=date, exams=exams, company=company)
-
-
-@bp.route('/examinations')
-@login_required
-def examinations():
-    # TODO: Workers required
-    if current_user.role == 'doctor':
-        exams = Examination.query.filter_by(
-            company_id=Doctor.query.get(current_user.id).company_id).all()
-    elif current_user.role == 'company':
-        exams = Company.query.get(current_user.id).examinations
-    return render_template('examinations.html', title='Обследования', exams=exams)
 
 
 @bp.route('/examination/<id>', methods=['GET', 'POST'])

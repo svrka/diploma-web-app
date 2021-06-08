@@ -20,9 +20,11 @@ def user_required(func):
     @wraps(func)
     def decorated_view(*args, **kwargs):
         if not current_user.username in str(request):
-            if current_user.role == 'company' and not Company.query.get(current_user.id).doctor.username in str(request):
+            if current_user.role == 'company' and not (Company.query.get(current_user.id).doctor and
+                                                       Company.query.get(current_user.id).doctor.username in str(request)):
                 return abort(404)
-            elif current_user.role == 'doctor' and not Company.query.get(Doctor.query.get(current_user.id).company_id).username in str(request):
+            elif current_user.role == 'doctor' and not Company.query.get(Doctor.query.
+                                                                         get(current_user.id).company_id).username in str(request):
                 return abort(404)
         return func(*args, **kwargs)
     return decorated_view
