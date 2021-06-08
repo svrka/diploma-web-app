@@ -182,6 +182,7 @@ def examinations_date(date):
 @bp.route('/examinations')
 @login_required
 def examinations():
+    # TODO: Workers required
     if current_user.role == 'doctor':
         exams = Examination.query.filter_by(
             company_id=Doctor.query.get(current_user.id).company_id).all()

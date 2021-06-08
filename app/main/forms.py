@@ -5,6 +5,7 @@ from wtforms import StringField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, Length, ValidationError, Email, Optional
 
 
+# TODO: Add masks
 class EditCompanyForm(FlaskForm):
     username = StringField('Имя пользователя (для входа)', validators=[
                            DataRequired('Заполните это поле')])

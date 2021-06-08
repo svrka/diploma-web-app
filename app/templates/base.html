@@ -45,6 +45,8 @@
 
 {% block scripts %}
 <script>
+    // TODO: Create static/message.js
+    // ? Do I need to use jQuery
     {% if current_user.is_authenticated %}
     function set_message_count(n) {
         $('#message_count').text(n);
@@ -64,6 +66,7 @@
             chat = true;
             exam_id = $(location).attr('pathname').split('/')[2];
         };
+        // TODO: Decrease interval
         setInterval(function () {
             $.ajax('{{ url_for('main.messages') }}?s=' + since + '&c=' + chat + '&e=' + exam_id).done(
                 function (messages) {
@@ -71,6 +74,7 @@
                         if (messages[i].status) {
                             if (($('#new_messages').length) && (messages[i].exam_id == parseInt(exam_id))) {
                                 var message = messages[i].author + ': ' + messages[i].body;
+                                // TODO: Flag new messages
                                 add_new_messages(message);
                             } else set_message_count(messages[i].payload_json);
                             // ? Almost always 0

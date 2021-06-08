@@ -88,6 +88,7 @@ class Doctor(User):
 
     @staticmethod
     def verify_registration_token(token):
+        # TODO: Delete token after registration
         try:
             id = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=[
                             'HS256'])['register_doctor']
@@ -116,6 +117,7 @@ class Examination(db.Model):
     blood_pressure = db.Column(db.String(10))
     alcohol_level = db.Column(db.String(10))
     datetime = db.Column(db.DateTime, default=datetime.utcnow)
+    # TODO: Close examination
 
     company_id = db.Column(db.Integer, db.ForeignKey('company.id'))
     worker_id = db.Column(db.Integer, db.ForeignKey('worker.id'))
@@ -129,6 +131,7 @@ class Examination(db.Model):
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     status = db.Column(db.Boolean, default=True)
+    # ? date and timestamp
     date = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     timestamp = db.Column(db.Float, index=True, default=time)
     body = db.Column(db.String(140))
@@ -139,6 +142,7 @@ class Message(db.Model):
     recipient_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     def __repr__(self):
+        # TODO: Display sent as "you"
         return '{}: {}'.format(self.author.role, self.body)
 
     def get_data(self):
