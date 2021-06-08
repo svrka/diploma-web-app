@@ -143,12 +143,11 @@ def edit_worker(id):
 @bp.route('/examinations')
 @login_required
 def examinations():
-    # TODO: Workers required
     if current_user.role == 'doctor':
         exams = Examination.query.filter_by(
             company_id=Doctor.query.get(current_user.id).company_id).all()
     elif current_user.role == 'company':
-        exams = Company.query.get(current_user.id).examinations
+        exams = Company.query.get(current_user.id).examinations.all()
     return render_template('examinations.html', title='Обследования', exams=exams)
 
 
@@ -171,9 +170,12 @@ def examinations_date(date):
 @login_required
 @role_required(role='company')
 def examination():
+    if not Company.query.get(current_user.id).workers.all():
+        flash('Необходимо добавить работников')
+        return redirect(url_for('main.workers'))
     if not Company.query.get(current_user.id).doctor:
         flash('Необходимо добавить доктора')
-        return redirect(url_for('main.company', username=current_user.username))
+        return redirect(url_for('auth.register_doctor'))
     search_form = SearchWorkerForm()
     exam_form = ExaminationForm()
     if search_form.validate_on_submit():
@@ -238,6 +240,7 @@ def messages():
     exam_id = request.args.get('e', type=int)
     messages = current_user.messages_received.filter(
         Message.timestamp > since).order_by(Message.timestamp.asc())
+    # print(messages.count())
     for msg in messages:
         msg.payload_json = json.dumps(current_user.new_messages())
 

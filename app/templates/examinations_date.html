@@ -2,7 +2,7 @@
 
 {% block content %}
 <h1>Обследования {{ date }}</h1>
-{% if exams != [] %}
+{% if exams %}
 {% for exam in exams %}
 <a href="{{ url_for('main.worker_profile', id=exam.worker.id) }}">{{ exam.worker.second_name }} {{
     exam.worker.first_name }}</a>
