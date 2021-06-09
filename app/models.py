@@ -14,6 +14,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
     role = db.Column(db.String(10), index=True)
+    # ! Delete
     last_message_read_time = db.Column(db.DateTime)
 
     messages_sent = db.relationship(
@@ -132,10 +133,11 @@ class Examination(db.Model):
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     status = db.Column(db.Boolean, default=True)
-    # ? date and timestamp
     date = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    # ! Delete
     timestamp = db.Column(db.Float, index=True, default=time)
     body = db.Column(db.String(140))
+    # ! Payload is actual intended message
     payload_json = db.Column(db.Text)
 
     exam_id = db.Column(db.Integer, db.ForeignKey('examination.id'))

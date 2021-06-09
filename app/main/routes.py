@@ -198,15 +198,13 @@ def examination():
 @exam_in_company
 def view_examination(id):
     examination = Examination.query.get(id)
-    # ? Redundant
-    current_user.last_message_read_time = datetime.utcnow()
     messages = Message.query.filter_by(
         recipient=current_user, exam_id=id).filter(Message.status == True).all()
     for msg in messages:
         msg.status = False
     db.session.commit()
     return render_template('view_examination.html', title='Просмотр обследования', examination=examination,
-                           messages=Message.query.filter_by(exam_id=id).order_by(Message.timestamp.desc()))
+                           messages=Message.query.filter_by(exam_id=id).order_by(Message.date.desc()))
 
 
 @bp.route('/send_message', methods=['POST'])
@@ -235,20 +233,16 @@ def send_message():
 @login_required
 def messages():
     reply = []
-    since = request.args.get('s', 0.0, type=float)
     on_chat = request.args.get('c', type=bool)
     exam_id = request.args.get('e', type=int)
     messages = current_user.messages_received.filter(
-        Message.timestamp > since).order_by(Message.timestamp.asc())
-    # print(messages.count())
+        Message.status).order_by(Message.date.asc())
     for msg in messages:
-        msg.payload_json = json.dumps(current_user.new_messages())
 
         reply.append({
             'id': msg.id,
             'status': msg.status,
             'date': msg.date,
-            'timestamp': msg.timestamp,
             'body': msg.body,
             'payload_json': msg.payload_json,
             'exam_id': msg.exam_id,

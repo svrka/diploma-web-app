@@ -1,0 +1,8 @@
+#messages p {
+  background-color: #fff;
+  transition: background-color 1000ms linear;
+}
+
+.message-new {
+  background-color: #c9ebff !important;
+}

@@ -6,6 +6,7 @@
     {% else %}
     <title>Добро пожаловать в Диплом</title>
     {% endif %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 </head>
 
@@ -22,7 +23,7 @@
         {% else %}
         <a href="{{ url_for('main.examinations') }}">Обследования
             {% set new_messages = current_user.new_messages() %}
-            <span id="message_count" class="badge" style="visibility: {% if new_messages %}visible
+            <span id="message-count" class="badge" style="visibility: {% if new_messages %}visible
                                                      {% else %}hidden{% endif %};">
                 {{ new_messages }}
             </span>

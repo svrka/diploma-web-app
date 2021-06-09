@@ -3,13 +3,13 @@
 {% block content %}
 <h1>Обследования {{ examination.worker }} {{ examination.datetime}}</h1>
 <p>{{ examination }}</p>
-<form id="message_form" action="#">
+<form id="message-form" action="#">
     <label for="message">Сообщение</label><br>
     <textarea name="message" id="message" required size="32"></textarea><br>
     <input id="submit" name="submit" type="submit" value="Отправить">
 </form>
 <br>
-<div id="new_messages">
+<div id="messages">
     {% for msg in messages %}
     <p>{{ msg }}</p>
     {% endfor %}
