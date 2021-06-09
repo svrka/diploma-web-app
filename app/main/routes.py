@@ -148,7 +148,9 @@ def examinations():
             company_id=Doctor.query.get(current_user.id).company_id).all()
     elif current_user.role == 'company':
         exams = Company.query.get(current_user.id).examinations.all()
-    return render_template('examinations.html', title='Обследования', exams=exams)
+    new_messages = Message.query.filter_by(recipient_id=current_user.id, status=True).with_entities(
+        Message.exam_id).distinct()
+    return render_template('examinations.html', title='Обследования', exams=exams, new_exam=new_messages)
 
 
 @bp.route('/examinations/<date>')
@@ -187,6 +189,9 @@ def examination():
                            alcohol_level=exam_form.alcohol_level.data, worker_id=exam_form.worker_id.data,
                            company_id=current_user.id)
         db.session.add(exam)
+        doctor = Company.query.get(current_user.id).doctor
+        doctor.add_message('', exam.id, current_user.id,
+                           doctor.id, doctor.new_messages)
         db.session.commit()
         flash('Данные отправлены')
         return redirect(url_for('main.view_examination', id=exam.id))
@@ -202,9 +207,11 @@ def view_examination(id):
         recipient=current_user, exam_id=id).filter(Message.status == True).all()
     for msg in messages:
         msg.status = False
+        if not msg.body:
+            db.session.delete(msg)
     db.session.commit()
     return render_template('view_examination.html', title='Просмотр обследования', examination=examination,
-                           messages=Message.query.filter_by(exam_id=id).order_by(Message.date.desc()))
+                           messages=Message.query.filter_by(exam_id=id).filter(Message.body != '').order_by(Message.date.desc()))
 
 
 @bp.route('/send_message', methods=['POST'])
@@ -225,7 +232,7 @@ def send_message():
 
     return jsonify({
         'message': message,
-        'author': current_user.role
+        'author': 'Вы'
     })
 
 

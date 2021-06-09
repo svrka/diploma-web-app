@@ -109,7 +109,7 @@ def doctor_registration(token):
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
     doctor = Doctor.verify_registration_token(token)
-    if not doctor:
+    if not doctor or doctor.password_hash:
         return redirect(url_for('main.index'))
     form = DoctorRegistrationForm(doctor.email)
     if form.validate_on_submit():
@@ -117,7 +117,6 @@ def doctor_registration(token):
         doctor.email = form.email.data
         doctor.first_name = form.first_name.data
         doctor.second_name = form.second_name.data
-        # doctor.role = 'doctor'
         doctor.set_password(form.password.data)
         db.session.commit()
         flash('Поздравляем с регистрацией!')

@@ -1,7 +1,7 @@
 from app import db, login
 from datetime import datetime
 from flask import current_app
-from flask_login import UserMixin
+from flask_login import UserMixin, current_user
 import json
 import jwt
 from time import time
@@ -14,8 +14,6 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
     role = db.Column(db.String(10), index=True)
-    # ! Delete
-    last_message_read_time = db.Column(db.DateTime)
 
     messages_sent = db.relationship(
         'Message', foreign_keys='Message.author_id', backref='author', lazy='dynamic')
@@ -89,7 +87,6 @@ class Doctor(User):
 
     @staticmethod
     def verify_registration_token(token):
-        # TODO: Delete token after registration
         try:
             id = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=[
                             'HS256'])['register_doctor']
@@ -114,12 +111,12 @@ class Worker(db.Model):
 
 
 class Examination(db.Model):
-    # TODO: new examinations count
     id = db.Column(db.Integer, primary_key=True)
     blood_pressure = db.Column(db.String(10))
     alcohol_level = db.Column(db.String(10))
     datetime = db.Column(db.DateTime, default=datetime.utcnow)
     # TODO: Close examination
+    close_time = db.Column(db.DateTime)
 
     company_id = db.Column(db.Integer, db.ForeignKey('company.id'))
     worker_id = db.Column(db.Integer, db.ForeignKey('worker.id'))
@@ -134,8 +131,6 @@ class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     status = db.Column(db.Boolean, default=True)
     date = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    # ! Delete
-    timestamp = db.Column(db.Float, index=True, default=time)
     body = db.Column(db.String(140))
     # ! Payload is actual intended message
     payload_json = db.Column(db.Text)
@@ -145,8 +140,7 @@ class Message(db.Model):
     recipient_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     def __repr__(self):
-        # TODO: Display sent as "you"
-        return '{}: {}'.format(self.author.role, self.body)
+        return '{}: {}'.format('Вы' if current_user == self.author else self.author.role, self.body)
 
     def get_data(self):
         return json.loads(str(self.payload_json))
