@@ -190,8 +190,7 @@ def examination():
                            company_id=current_user.id)
         db.session.add(exam)
         doctor = Company.query.get(current_user.id).doctor
-        doctor.add_message('', exam.id, current_user.id,
-                           doctor.id, doctor.new_messages)
+        doctor.add_message('', exam.id, current_user.id, doctor.id)
         db.session.commit()
         flash('Данные отправлены')
         return redirect(url_for('main.view_examination', id=exam.id))
@@ -207,11 +206,11 @@ def view_examination(id):
         recipient=current_user, exam_id=id).filter(Message.status == True).all()
     for msg in messages:
         msg.status = False
-        if not msg.body:
+        if not msg.get_data():
             db.session.delete(msg)
     db.session.commit()
     return render_template('view_examination.html', title='Просмотр обследования', examination=examination,
-                           messages=Message.query.filter_by(exam_id=id).filter(Message.body != '').order_by(Message.date.desc()))
+                           messages=Message.query.filter_by(exam_id=id).filter(Message.payload_json != '""').order_by(Message.date.desc()))
 
 
 @bp.route('/send_message', methods=['POST'])
@@ -226,8 +225,7 @@ def send_message():
     elif current_user.role == 'doctor':
         user = User.query.get(examination.company_id)
 
-    user.add_message(message, exam_id, current_user.id,
-                     user.id, user.new_messages)
+    user.add_message(message, exam_id, current_user.id, user.id)
     db.session.commit()
 
     return jsonify({
@@ -250,8 +248,8 @@ def messages():
             'id': msg.id,
             'status': msg.status,
             'date': msg.date,
-            'body': msg.body,
-            'payload_json': msg.payload_json,
+            'payload_json': json.loads(msg.payload_json),
+            'unread_exams': msg.unread_exams,
             'exam_id': msg.exam_id,
             'author_id': msg.author_id,
             'recipient_id': msg.recipient_id,

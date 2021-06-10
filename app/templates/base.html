@@ -21,12 +21,13 @@
         {% if current_user.is_anonymous %}
         <a href="{{ url_for('auth.login') }}">Войти</a>
         {% else %}
-        <a href="{{ url_for('main.examinations') }}">Обследования
+        <a id="link-exams" href="{{ url_for('main.examinations') }}">Обследования
             {% set new_messages = current_user.new_messages() %}
-            <span id="message-count" class="badge" style="visibility: {% if new_messages %}visible
-                                                     {% else %}hidden{% endif %};">
+            {% if new_messages %}
+            <span id="exams-count" class="badge">
                 {{ new_messages }}
             </span>
+            {% endif %}
         </a>
         <a href="{{ url_for('auth.logout') }}">Выйти</a>
         {% endif %}

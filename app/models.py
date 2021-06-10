@@ -45,11 +45,12 @@ class User(UserMixin, db.Model):
         return Message.query.filter_by(recipient=self, status=True).with_entities(
             Message.exam_id).distinct().count()
 
-    def add_message(self, body, exam_id, author_id, recipient_id, data):
-        msg = Message(body=body, exam_id=exam_id, author_id=author_id,
+    def add_message(self, body, exam_id, author_id, recipient_id):
+        msg = Message(exam_id=exam_id, author_id=author_id,
                       recipient_id=recipient_id)
         db.session.add(msg)
-        msg.payload_json = json.dumps(data())
+        msg.unread_exams = self.new_messages()
+        msg.payload_json = json.dumps(body)
         return msg
 
 
@@ -131,16 +132,15 @@ class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     status = db.Column(db.Boolean, default=True)
     date = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    body = db.Column(db.String(140))
-    # ! Payload is actual intended message
     payload_json = db.Column(db.Text)
+    unread_exams = db.Column(db.Integer)
 
     exam_id = db.Column(db.Integer, db.ForeignKey('examination.id'))
     author_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     recipient_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     def __repr__(self):
-        return '{}: {}'.format('Вы' if current_user == self.author else self.author.role, self.body)
+        return '{}: {}'.format('Вы' if current_user == self.author else self.author.role, self.get_data())
 
     def get_data(self):
         return json.loads(str(self.payload_json))
