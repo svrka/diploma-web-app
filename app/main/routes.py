@@ -1,12 +1,10 @@
 from app import db
-from app.decorators import exam_in_company, worker_in_company, role_required, user_required
+from app.decorators import worker_in_company, role_required, user_required
 from app.main import bp
-from app.models import Company, Doctor, Examination, Message, User, Worker
+from app.models import Company, Doctor, Worker
 from app.main.forms import AddWorkerForm, EditCompanyForm, EditDoctorForm, EditWorkerForm
-from datetime import datetime
-from flask import render_template, flash, redirect, url_for, request, jsonify
+from flask import render_template, flash, redirect, url_for, request
 from flask_login import current_user, login_required
-import json
 
 
 @bp.route('/')
@@ -19,13 +17,8 @@ def index():
 @login_required
 @user_required
 def doctor(username):
-    # ? Use username
-    if current_user.role == 'doctor':
-        doctor = Doctor.query.get(current_user.id)
-        company = Company.query.get(doctor.company_id)
-    elif current_user.role == 'company':
-        company = Company.query.get(current_user.id)
-        doctor = company.doctor
+    doctor = Doctor.query.filter_by(username=username).first_or_404()
+    company = Company.query.get(doctor.company_id)
     return render_template('doctor.html', title='Страница врача', doctor=doctor, company=company)
 
 
@@ -33,11 +26,7 @@ def doctor(username):
 @login_required
 @user_required
 def company(username):
-    if current_user.role == 'doctor':
-        doctor = Doctor.query.get(current_user.id)
-        company = Company.query.get(doctor.company_id)
-    elif current_user.role == 'company':
-        company = Company.query.get(current_user.id)
+    company = Company.query.filter_by(username=username).first_or_404()
     dates = []
     for examination in company.examinations:
         if examination.datetime.date() not in dates:

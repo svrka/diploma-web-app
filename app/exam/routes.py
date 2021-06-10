@@ -1,12 +1,11 @@
 from app import db
-from app.decorators import exam_in_company, worker_in_company, role_required, user_required
+from app.decorators import exam_in_company, role_required
 from app.exam import bp
 from app.models import Company, Doctor, Examination, Message, User, Worker
 from app.exam.forms import ExaminationForm, SearchWorkerForm
 from datetime import datetime
 from flask import render_template, flash, redirect, url_for, request, jsonify
 from flask_login import current_user, login_required
-import json
 
 
 @bp.route('/all')
@@ -80,6 +79,15 @@ def view_examination(id):
     db.session.commit()
     return render_template('exam/view_examination.html', title='Просмотр обследования', examination=examination,
                            messages=Message.query.filter_by(exam_id=id).filter(Message.payload_json != '""').order_by(Message.date.desc()))
+
+
+@bp.route('/close_examination', methods=['POST'])
+@role_required(role='doctor')
+def close_examination():
+    exam = Examination.query.get(request.args.get('e', type=int))
+    exam.close_time = datetime.utcnow()
+    db.session.commit()
+    return redirect(url_for('exam.view_all'))
 
 
 @bp.route('/send_message', methods=['POST'])

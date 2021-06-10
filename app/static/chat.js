@@ -3,7 +3,6 @@ var chat = false;
 
 function set_message_count(n) {
     if (n && !$('#exams-count').length) {
-        console.log('hey');
         var badge = $('<span id="exams-count"></span>');
         $('#link-exams').append(badge);
     };
@@ -23,7 +22,6 @@ $(function () {
     if ($('#messages').length) {
         chat = true;
         exam_id = $(location).attr('pathname').split('/')[2];
-        console.log(exam_id);
     };
     // TODO: Decrease interval
     setInterval(function () {
@@ -42,8 +40,15 @@ $(function () {
     }, 10000);
 
 });
-
+// ? Other js
 $(function () {
+
+    $('#close-examination').on('click', function () {
+        $.ajax({
+            type: 'POST',
+            url: '/exam/close_examination?e=' + exam_id
+        });
+    });
 
     $('#message').on('input focus', function () {
         $('.message-new').removeClass('message-new');

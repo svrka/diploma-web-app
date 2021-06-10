@@ -3,11 +3,14 @@
 {% block content %}
 <h1>Обследования {{ examination.worker }} {{ examination.datetime}}</h1>
 <p>{{ examination }}</p>
+{% if not examination.close_time %}
 <form id="message-form" action="#">
     <label for="message">Сообщение</label><br>
     <textarea name="message" id="message" required size="32"></textarea><br>
     <input id="submit" name="submit" type="submit" value="Отправить">
 </form>
+<button id="close-examination" type="submit">Допуск</button>
+{% endif %}
 <br>
 <div id="messages">
     {% for msg in messages %}

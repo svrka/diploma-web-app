@@ -12,6 +12,9 @@
 <span>New messages</span>
 {% endif %}
 {% endfor %}
+{% if exam.close_time %}
+<span>Допуск</span>
+{% endif %}
 <br>
 {% endfor %}
 {% else %}
