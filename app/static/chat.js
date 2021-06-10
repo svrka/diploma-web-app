@@ -23,10 +23,11 @@ $(function () {
     if ($('#messages').length) {
         chat = true;
         exam_id = $(location).attr('pathname').split('/')[2];
+        console.log(exam_id);
     };
     // TODO: Decrease interval
     setInterval(function () {
-        $.ajax('/messages?c=' + chat + '&e=' + exam_id).done(
+        $.ajax('/exam/messages?c=' + chat + '&e=' + exam_id).done(
             function (messages) {
                 for (var i = 0; i < messages.length; i++) {
                     if (messages[i].status) {
@@ -51,20 +52,16 @@ $(function () {
     $('#message-form').on('submit', function (e) {
 
         $.ajax({
-
             data: {
                 message: $('#message').val(),
                 exam_id: exam_id
             },
             type: 'POST',
-            url: '/send_message'
-
+            url: '/exam/send_message'
         }).done(function (data) {
-
             $('#message').val('');
             var msg = data.author + ': ' + data.message;
             add_new_message(msg);
-
         });
 
         e.preventDefault();

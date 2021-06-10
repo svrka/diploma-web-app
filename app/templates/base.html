@@ -21,7 +21,7 @@
         {% if current_user.is_anonymous %}
         <a href="{{ url_for('auth.login') }}">Войти</a>
         {% else %}
-        <a id="link-exams" href="{{ url_for('main.examinations') }}">Обследования
+        <a id="link-exams" href="{{ url_for('exam.view_all') }}">Обследования
             {% set new_messages = current_user.new_messages() %}
             {% if new_messages %}
             <span id="exams-count" class="badge">

@@ -6,7 +6,7 @@
 {% for exam in exams %}
 <a href="{{ url_for('main.worker_profile', id=exam.worker.id) }}">{{ exam.worker.second_name }} {{
     exam.worker.first_name }}</a>
-<a href="{{ url_for('main.view_examination', id=exam.id) }}">{{ exam }}</a>
+<a href="{{ url_for('exam.view_examination', id=exam.id) }}">{{ exam }}</a>
 {% for new_id in new_exam %}
 {% if exam.id == new_id.exam_id %}
 <span>New messages</span>

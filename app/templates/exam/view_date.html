@@ -1,15 +1,20 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Обследования {{ date }}</h1>
+<h1>Обследования</h1>
 {% if exams %}
 {% for exam in exams %}
 <a href="{{ url_for('main.worker_profile', id=exam.worker.id) }}">{{ exam.worker.second_name }} {{
     exam.worker.first_name }}</a>
 <a href="{{ url_for('exam.view_examination', id=exam.id) }}">{{ exam }}</a>
+{% for new_id in new_exam %}
+{% if exam.id == new_id.exam_id %}
+<span>New messages</span>
+{% endif %}
+{% endfor %}
 <br>
 {% endfor %}
 {% else %}
-<p>В этот день не проводились обследования</p>
+<p>Обследования еще не проводились</p>
 {% endif %}
 {% endblock %}

@@ -7,6 +7,6 @@
 <p><a href="{{ url_for('main.edit_worker', id=worker.id) }}">Изменить данные</a></p>
 {% endif %}
 {% for exam in worker.examinations %}
-<a href="{{ url_for('main.view_examination', id=exam.id) }}">{{ exam }}</a>
+<a href="{{ url_for('exam.view_examination', id=exam.id) }}">{{ exam }}</a>
 {% endfor %}
 {% endblock %}
