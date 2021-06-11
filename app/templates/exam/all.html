@@ -9,11 +9,13 @@
 <a href="{{ url_for('exam.view_examination', id=exam.id) }}">{{ exam }}</a>
 {% for new_id in new_exam %}
 {% if exam.id == new_id.exam_id %}
-<span>New messages</span>
+<span>Новое</span>
 {% endif %}
 {% endfor %}
-{% if exam.close_time %}
+{% if exam.close_status == True %}
 <span>Допуск</span>
+{% elif exam.close_status == False %}
+<span>Запрет</span>
 {% endif %}
 <br>
 {% endfor %}

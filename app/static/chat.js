@@ -6,7 +6,6 @@ function set_message_count(n) {
         var badge = $('<span id="exams-count"></span>');
         $('#link-exams').append(badge);
     };
-    console.log('there');
     $('#exams-count').text(n);
     $('#exams-count').css('visibility', n ? 'visible' : 'hidden');
 };
@@ -30,8 +29,13 @@ $(function () {
                 for (var i = 0; i < messages.length; i++) {
                     if (messages[i].status) {
                         if (($('#messages').length) && (messages[i].exam_id == parseInt(exam_id))) {
-                            var message = messages[i].author + ': ' + messages[i].payload_json;
-                            add_new_message(message, 'message-new');
+                            if (messages[i].close_exam) {
+                                alert('Проверка закончена');
+                                location.reload();
+                            } else {
+                                var message = messages[i].author + ': ' + messages[i].payload_json;
+                                add_new_message(message, 'message-new');
+                            }
                         } else set_message_count(messages[i].unread_exams);
                     };
                 };
@@ -43,11 +47,15 @@ $(function () {
 // ? Other js
 $(function () {
 
-    $('#close-examination').on('click', function () {
-        $.ajax({
-            type: 'POST',
-            url: '/exam/close_examination?e=' + exam_id
-        });
+    $('.close').on('click', function () {
+        if (window.confirm('Завершить обследование?')) {
+            $.ajax({
+                type: 'POST',
+                url: '/exam/close_examination?exam=' + exam_id + '&status=' + $(this).attr('value')
+            }).done(function (response) {
+                window.location.href = response.redirect;
+            });
+        }
     });
 
     $('#message').on('input focus', function () {

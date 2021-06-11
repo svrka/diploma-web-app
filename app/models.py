@@ -116,8 +116,8 @@ class Examination(db.Model):
     blood_pressure = db.Column(db.String(10))
     alcohol_level = db.Column(db.String(10))
     datetime = db.Column(db.DateTime, default=datetime.utcnow)
-    # TODO: Close examination
     close_time = db.Column(db.DateTime)
+    close_status = db.Column(db.Boolean)
 
     company_id = db.Column(db.Integer, db.ForeignKey('company.id'))
     worker_id = db.Column(db.Integer, db.ForeignKey('worker.id'))
@@ -134,6 +134,7 @@ class Message(db.Model):
     date = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     payload_json = db.Column(db.Text)
     unread_exams = db.Column(db.Integer)
+    close_exam = db.Column(db.Boolean)
 
     exam_id = db.Column(db.Integer, db.ForeignKey('examination.id'))
     author_id = db.Column(db.Integer, db.ForeignKey('user.id'))

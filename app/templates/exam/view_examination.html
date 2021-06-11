@@ -9,7 +9,10 @@
     <textarea name="message" id="message" required size="32"></textarea><br>
     <input id="submit" name="submit" type="submit" value="Отправить">
 </form>
-<button id="close-examination" type="submit">Допуск</button>
+{% if current_user.role == 'doctor' %}
+<button id="admit" class="close" type="submit" value="1">Допустить</button>
+<button id="forbid" class="close" type="submit" value="0">Запретить</button>
+{% endif %}
 {% endif %}
 <br>
 <div id="messages">

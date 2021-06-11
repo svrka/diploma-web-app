@@ -84,10 +84,21 @@ def view_examination(id):
 @bp.route('/close_examination', methods=['POST'])
 @role_required(role='doctor')
 def close_examination():
-    exam = Examination.query.get(request.args.get('e', type=int))
+    exam = Examination.query.get(request.args.get('exam', type=int))
+    company = Company.query.get(exam.company_id)
+    close_status = request.args.get('status', type=int)
     exam.close_time = datetime.utcnow()
+    exam.close_status = close_status
+    if close_status:
+        message = 'Вы допущены'
+    else:
+        message = 'Вы не допущены'
+    msg = company.add_message(message, exam.id, current_user.id, company.id)
+    msg.close_exam = close_status
     db.session.commit()
-    return redirect(url_for('exam.view_all'))
+    return jsonify({
+        'redirect': url_for('exam.view_all')
+    })
 
 
 @bp.route('/send_message', methods=['POST'])
@@ -131,6 +142,7 @@ def messages():
             'author_id': msg.author_id,
             'recipient_id': msg.recipient_id,
             'author': msg.author.role,
+            'close_exam': msg.close_exam
         })
 
         if on_chat and (msg.exam_id == exam_id):
