@@ -41,3 +41,7 @@ app.db
 logs
 main.log*
 .env
+*.png
+*.jpeg
+*.jpg
+*.gif

@@ -2,8 +2,11 @@
 
 {% block content %}
 <h1>{{ doctor.first_name }} {{ doctor.second_name }}!</h1>
+{% if doctor.avatar %}
+<img src="{{ url_for('main.uploads', filename=doctor.username) }}" style="width: 300px">
+{% endif %}
 {% if doctor.id == current_user.id %}
-<p><a href="{{ url_for('main.edit_doctor') }}">Изменить данные</a></p>
+<p><a href="{{ url_for('main.edit_user') }}">Изменить данные</a></p>
 {% endif %}
 <p>
     <a href="{{ url_for('main.company', username=company.username) }}">{{ company }}</a>

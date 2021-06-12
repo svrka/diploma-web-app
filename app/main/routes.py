@@ -3,8 +3,11 @@ from app.decorators import worker_in_company, role_required, user_required
 from app.main import bp
 from app.models import Company, Doctor, Worker
 from app.main.forms import AddWorkerForm, EditCompanyForm, EditDoctorForm, EditWorkerForm
-from flask import render_template, flash, redirect, url_for, request
+from app.validators import validate_image
+from flask import render_template, flash, redirect, url_for, request, abort, current_app, send_from_directory
 from flask_login import current_user, login_required
+import os
+from werkzeug.utils import secure_filename
 
 
 @bp.route('/')
@@ -34,48 +37,62 @@ def company(username):
     return render_template('company.html', title='Страница компании', company=company, dates=dates)
 
 
-@bp.route('/edit_company', methods=['GET', 'POST'])
+@bp.route('/edit_user', methods=['GET', 'POST'])
 @login_required
-@role_required(role='company')
-def edit_company():
-    company = Company.query.get(current_user.id)
-    form = EditCompanyForm(company.username, company.email)
+def edit_user():
+    if current_user.role == 'doctor':
+        form = EditDoctorForm(current_user.username, current_user.email)
+        user = Doctor.query.get(current_user.id)
+    elif current_user.role == 'company':
+        form = EditCompanyForm(current_user.username, current_user.email)
+        user = Company.query.get(current_user.id)
     if form.validate_on_submit():
-        company.username = form.username.data
-        company.email = form.email.data
-        company.name = form.name.data
-        company.about = form.about.data
-        db.session.commit()
-        flash('Данные сохранены')
-        return redirect(url_for('main.edit_company'))
-    elif request.method == 'GET':
-        form.username.data = company.username
-        form.email.data = company.email
-        form.name.data = company.name
-        form.about.data = company.about
-    return render_template('edit_user.html', title='Настройка компании', form=form)
-
-
-@bp.route('/edit_doctor', methods=['GET', 'POST'])
-@login_required
-@role_required(role='doctor')
-def edit_doctor():
-    doctor = Doctor.query.get(current_user.id)
-    form = EditDoctorForm(doctor.username, doctor.email)
-    if form.validate_on_submit():
-        doctor.username = form.username.data
-        doctor.email = form.email.data
-        doctor.first_name = form.first_name.data
-        doctor.second_name = form.second_name.data
+        current_user.username = form.username.data
+        current_user.email = form.email.data
+        if current_user.role == 'doctor':
+            user.first_name = form.first_name.data
+            user.second_name = form.second_name.data
+        elif current_user.role == 'company':
+            user.name = form.name.data
+            user.about = form.about.data
         db.session.commit()
         flash('Данные сохранены')
         return redirect(url_for('main.edit_doctor'))
     elif request.method == 'GET':
-        form.username.data = doctor.username
-        form.email.data = doctor.email
-        form.first_name.data = doctor.first_name
-        form.second_name.data = doctor.second_name
+        form.username.data = current_user.username
+        form.email.data = current_user.email
+        if current_user.role == 'doctor':
+            form.first_name.data = user.first_name
+            form.second_name.data = user.second_name
+        elif current_user.role == 'company':
+            form.name.data = user.name
+            form.about.data = user.about
     return render_template('edit_user.html', title='Настройка доктора', form=form)
+
+
+@bp.route('/upload_avatar', methods=['POST'])
+@login_required
+def upload_avatar():
+    uploaded_file = request.files['file']
+    filename = uploaded_file.filename
+    if filename != '':
+        file_ext = os.path.splitext(filename)[1]
+        if file_ext not in current_app.config['UPLOAD_EXTENSIONS'] or file_ext != validate_image(uploaded_file.stream):
+            # TODO: check
+            abort(400)
+        uploaded_file.save(os.path.join(
+            current_app.config['UPLOAD_PATH'], current_user.username, current_user.username))
+        current_user.avatar = os.path.join(current_app.config['UPLOAD_PATH'], current_user.username)
+        db.session.commit()
+    flash('Аватар загружен')
+    return redirect(url_for('main.edit_user'))
+
+
+@bp.route('/uploads/<path:filename>')
+@login_required
+# TODO: Add decorators
+def uploads(filename):
+    return send_from_directory(os.path.join('..', current_app.config['UPLOAD_PATH'], filename), filename)
 
 
 @bp.route('/workers', methods=['GET', 'POST'])

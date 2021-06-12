@@ -18,3 +18,7 @@ class Config(object):
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     ADMINS = ['negoda.timur.04@gmail.com']
+
+    UPLOAD_PATH = 'uploads'
+    MAX_CONTENT_LENGTH = 2 * 1024 * 1024
+    UPLOAD_EXTENSIONS = ['.jpg', '.png', '.gif']

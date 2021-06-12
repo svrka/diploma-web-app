@@ -1,6 +1,5 @@
-from app.models import User, Worker
+from app.models import User
 from flask_wtf import FlaskForm
-from flask_login import current_user
 from wtforms import StringField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, Length, ValidationError, Email, Optional
 
@@ -76,5 +75,3 @@ class EditWorkerForm(FlaskForm):
     middle_name = StringField('Отчество')
     email = StringField('Почта', validators=[Optional(), Email()])
     submit = SubmitField('Сохранить')
-
-

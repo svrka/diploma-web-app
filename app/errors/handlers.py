@@ -18,3 +18,9 @@ def internal_error(error):
 def method_not_allowed_error(error):
     db.session.rollback()
     return render_template('errors/404.html'), 405
+
+
+@bp.errorhandler(413)
+def too_large(error):
+    # ? Template
+    return 'Слишком большой файл', 413

@@ -3,7 +3,9 @@ from app import db
 from app.auth import bp
 from app.models import User, Company, Doctor
 from app.auth.email import send_doctor_registration_email, send_password_reset_email
-from app.auth.forms import LoginForm, DoctorRegistrationForm, CompanyRegistrationForm, RegisterDoctorForm, ResetPasswordForm, ResetPasswordRequestForm
+from app.auth.forms import LoginForm, DoctorRegistrationForm, CompanyRegistrationForm, RegisterDoctorForm,\
+    ResetPasswordForm, ResetPasswordRequestForm
+import os
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
@@ -50,6 +52,8 @@ def register_company():
         company.set_password(form.password.data)
         db.session.add(company)
         db.session.commit()
+        if not os.path.exists('uploads/{}'.format(company.username)):
+            os.mkdir('uploads/{}'.format(company.username))
         flash('Поздравляем с регистрацией!')
         return redirect(url_for('auth.login'))
     return render_template('auth/register.html', title='Регистрация компании', form=form)
@@ -119,6 +123,8 @@ def doctor_registration(token):
         doctor.second_name = form.second_name.data
         doctor.set_password(form.password.data)
         db.session.commit()
+        if not os.path.exists('uploads/{}'.format(doctor.username)):
+            os.mkdir('uploads/{}'.format(doctor.username))
         flash('Поздравляем с регистрацией!')
         return redirect(url_for('auth.login'))
     elif request.method == 'GET':

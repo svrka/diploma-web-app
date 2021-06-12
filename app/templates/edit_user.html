@@ -1,54 +1,59 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Изменение информации</h1>
-    <form action="" method="post">
-        {{ form.hidden_tag() }}
-        <p>
-            {{ form.username.label }}<br>
-            {{ form.username(size=32) }}<br>
-            {% for error in form.username.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.email.label }}<br>
-            {{ form.email(size=32) }}<br>
-            {% for error in form.email.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        {% if 'компании' in title %}
-        <p>
-            {{ form.name.label }}<br>
-            {{ form.name(size=32) }}<br>
-            {% for error in form.name.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.about.label }}<br>
-            {{ form.about(cols=50, rows=4) }}<br>
-            {% for error in form.about.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        {% else %}
-        <p>
-            {{ form.first_name.label }}<br>
-            {{ form.first_name(size=32) }}<br>
-            {% for error in form.first_name.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.second_name.label }}<br>
-            {{ form.second_name(cols=50, rows=4) }}<br>
-            {% for error in form.second_name.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        {% endif %}
-        <p>{{ form.submit() }}</p>
-    </form>
+<h1>Изменение информации</h1>
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.username.label }}<br>
+        {{ form.username(size=32) }}<br>
+        {% for error in form.username.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.email.label }}<br>
+        {{ form.email(size=32) }}<br>
+        {% for error in form.email.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    {% if current_user.role == 'company' %}
+    <p>
+        {{ form.name.label }}<br>
+        {{ form.name(size=32) }}<br>
+        {% for error in form.name.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.about.label }}<br>
+        {{ form.about(cols=50, rows=4) }}<br>
+        {% for error in form.about.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    {% else %}
+    <p>
+        {{ form.first_name.label }}<br>
+        {{ form.first_name(size=32) }}<br>
+        {% for error in form.first_name.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.second_name.label }}<br>
+        {{ form.second_name(cols=50, rows=4) }}<br>
+        {% for error in form.second_name.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    {% endif %}
+    <p>{{ form.submit() }}</p>
+</form>
+<img src="{{ url_for('main.uploads', filename=current_user.username) }}" style="width: 300px">
+<form action="{{ url_for('main.upload_avatar') }}" method="POST" enctype="multipart/form-data">
+    <input type="file" name="file" />
+    <input type="submit" />
+</form>
 {% endblock %}
