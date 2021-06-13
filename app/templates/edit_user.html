@@ -51,7 +51,9 @@
     {% endif %}
     <p>{{ form.submit() }}</p>
 </form>
-<img src="{{ url_for('main.uploads', filename=current_user.username) }}" style="width: 300px">
+{% if current_user.avatar %}
+<img src="{{ url_for('main.uploads', path=current_user.avatar, filename=current_user.username) }}" style="width: 300px">
+{% endif %}
 <form action="{{ url_for('main.upload_avatar') }}" method="POST" enctype="multipart/form-data">
     <input type="file" name="file" />
     <input type="submit" />

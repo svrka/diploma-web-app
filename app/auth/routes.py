@@ -54,6 +54,8 @@ def register_company():
         db.session.commit()
         if not os.path.exists('uploads/{}'.format(company.username)):
             os.mkdir('uploads/{}'.format(company.username))
+        if not os.path.exists('uploads/{}/workers'.format(company.username)):
+            os.mkdir('uploads/{}/workers'.format(company.username))
         flash('Поздравляем с регистрацией!')
         return redirect(url_for('auth.login'))
     return render_template('auth/register.html', title='Регистрация компании', form=form)

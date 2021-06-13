@@ -73,26 +73,27 @@ def edit_user():
 @bp.route('/upload_avatar', methods=['POST'])
 @login_required
 def upload_avatar():
+    # TODO: Default avatar
     uploaded_file = request.files['file']
     filename = uploaded_file.filename
     if filename != '':
         file_ext = os.path.splitext(filename)[1]
         if file_ext not in current_app.config['UPLOAD_EXTENSIONS'] or file_ext != validate_image(uploaded_file.stream):
-            # TODO: check
+            # TODO: error handler
             abort(400)
-        uploaded_file.save(os.path.join(
-            current_app.config['UPLOAD_PATH'], current_user.username, current_user.username))
-        current_user.avatar = os.path.join(current_app.config['UPLOAD_PATH'], current_user.username)
+        current_user.avatar = os.path.join(
+            current_app.config['UPLOAD_PATH'], current_user.username)
         db.session.commit()
-    flash('Аватар загружен')
+        uploaded_file.save(os.path.join(
+            current_user.avatar, current_user.username))
+    flash('Аватар сохранен')
     return redirect(url_for('main.edit_user'))
 
 
-@bp.route('/uploads/<path:filename>')
+@bp.route('/uploads/<path>/<filename>')
 @login_required
-# TODO: Add decorators
-def uploads(filename):
-    return send_from_directory(os.path.join('..', current_app.config['UPLOAD_PATH'], filename), filename)
+def uploads(path, filename):
+    return send_from_directory(os.path.join('..', path), filename)
 
 
 @bp.route('/workers', methods=['GET', 'POST'])
@@ -104,6 +105,8 @@ def workers():
                         second_name=form.second_name.data, email=form.email.data, company_id=current_user.id)
         db.session.add(worker)
         db.session.commit()
+        if not os.path.exists('uploads/{}/workers/{}'.format(current_user.username, worker.id)):
+            os.mkdir('uploads/{}/workers/{}'.format(current_user.username, worker.id))
         flash('Новый сотрудник добавлен')
         return redirect(url_for('main.workers'))
     if current_user.role == 'company':
