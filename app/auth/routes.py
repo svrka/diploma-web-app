@@ -6,7 +6,7 @@ from app.auth.email import send_doctor_registration_email, send_password_reset_e
 from app.auth.forms import LoginForm, DoctorRegistrationForm, CompanyRegistrationForm, RegisterDoctorForm,\
     ResetPasswordForm, ResetPasswordRequestForm
 import os
-from flask import render_template, flash, redirect, url_for, request
+from flask import render_template, flash, redirect, url_for, request, current_app
 from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
 
@@ -50,12 +50,14 @@ def register_company():
         company = Company(username=form.username.data, name=form.name.data,
                           email=form.email.data, role='company')
         company.set_password(form.password.data)
-        db.session.add(company)
-        db.session.commit()
         if not os.path.exists('uploads/{}'.format(company.username)):
             os.mkdir('uploads/{}'.format(company.username))
         if not os.path.exists('uploads/{}/workers'.format(company.username)):
             os.mkdir('uploads/{}/workers'.format(company.username))
+        company.uploads_path = os.path.join(
+            current_app.config['UPLOAD_PATH'], company.username)
+        db.session.add(company)
+        db.session.commit()
         flash('Поздравляем с регистрацией!')
         return redirect(url_for('auth.login'))
     return render_template('auth/register.html', title='Регистрация компании', form=form)
@@ -124,6 +126,10 @@ def doctor_registration(token):
         doctor.first_name = form.first_name.data
         doctor.second_name = form.second_name.data
         doctor.set_password(form.password.data)
+        if not os.path.exists('uploads/{}'.format(doctor.username)):
+            os.mkdir('uploads/{}'.format(doctor.username))
+        doctor.uploads_path = os.path.join(
+            current_app.config['UPLOAD_PATH'], doctor.username)
         db.session.commit()
         if not os.path.exists('uploads/{}'.format(doctor.username)):
             os.mkdir('uploads/{}'.format(doctor.username))

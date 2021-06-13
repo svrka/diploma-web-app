@@ -14,8 +14,8 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
     role = db.Column(db.String(10), index=True)
-    # ? Redundant
-    avatar = db.Column(db.String(128), index=True, unique=True)
+    uploads_path = db.Column(db.String(64), index=True, unique=True)
+    avatar_file = db.Column(db.String(64), index=True)
 
     messages_sent = db.relationship(
         'Message', foreign_keys='Message.author_id', backref='author', lazy='dynamic')
@@ -104,6 +104,8 @@ class Worker(db.Model):
     second_name = db.Column(db.String(64), index=True)
     middle_name = db.Column(db.String(64), index=True)
     email = db.Column(db.String(120), index=True)
+    uploads_path = db.Column(db.String(64), index=True, unique=True)
+    avatar_file = db.Column(db.String(64), index=True)
 
     company_id = db.Column(db.Integer, db.ForeignKey('company.id'))
     examinations = db.relationship(

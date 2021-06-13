@@ -21,4 +21,4 @@ class Config(object):
 
     UPLOAD_PATH = 'uploads'
     MAX_CONTENT_LENGTH = 2 * 1024 * 1024
-    UPLOAD_EXTENSIONS = ['.jpg', '.png', '.gif']
+    UPLOAD_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif']

@@ -3,7 +3,6 @@ from app.decorators import worker_in_company, role_required, user_required
 from app.main import bp
 from app.models import Company, Doctor, Worker
 from app.main.forms import AddWorkerForm, EditCompanyForm, EditDoctorForm, EditWorkerForm
-from app.validators import validate_image
 from flask import render_template, flash, redirect, url_for, request, abort, current_app, send_from_directory
 from flask_login import current_user, login_required
 import os
@@ -70,24 +69,28 @@ def edit_user():
     return render_template('edit_user.html', title='Настройка доктора', form=form)
 
 
-@bp.route('/upload_avatar', methods=['POST'])
+@bp.route('/upload_avatar/<table>/<id>', methods=['POST'])
 @login_required
-def upload_avatar():
+def upload_avatar(table, id):
     # TODO: Default avatar
     uploaded_file = request.files['file']
-    filename = uploaded_file.filename
+    filename = secure_filename(uploaded_file.filename)
+    if table == 'user':
+        user = current_user
+        reply = url_for('main.edit_user')
+    elif table == 'worker':
+        user = Worker.query.get(id)
+        reply = url_for('main.edit_worker', id=id)
     if filename != '':
         file_ext = os.path.splitext(filename)[1]
-        if file_ext not in current_app.config['UPLOAD_EXTENSIONS'] or file_ext != validate_image(uploaded_file.stream):
+        if file_ext not in current_app.config['UPLOAD_EXTENSIONS']:
             # TODO: error handler
             abort(400)
-        current_user.avatar = os.path.join(
-            current_app.config['UPLOAD_PATH'], current_user.username)
+        user.avatar_file = filename
         db.session.commit()
-        uploaded_file.save(os.path.join(
-            current_user.avatar, current_user.username))
+        uploaded_file.save(os.path.join(user.uploads_path, filename))
     flash('Аватар сохранен')
-    return redirect(url_for('main.edit_user'))
+    return redirect(reply)
 
 
 @bp.route('/uploads/<path>/<filename>')
@@ -105,8 +108,11 @@ def workers():
                         second_name=form.second_name.data, email=form.email.data, company_id=current_user.id)
         db.session.add(worker)
         db.session.commit()
-        if not os.path.exists('uploads/{}/workers/{}'.format(current_user.username, worker.id)):
-            os.mkdir('uploads/{}/workers/{}'.format(current_user.username, worker.id))
+        if not os.path.exists('{}/workers/{}'.format(current_user.uploads_path, worker.id)):
+            os.mkdir('{}/workers/{}'.format(current_user.uploads_path, worker.id))
+        worker.uploads_path = os.path.join(
+            current_user.uploads_path, 'workers', str(worker.id))
+        db.session.commit()
         flash('Новый сотрудник добавлен')
         return redirect(url_for('main.workers'))
     if current_user.role == 'company':
@@ -116,8 +122,7 @@ def workers():
         doctor = Doctor.query.get(current_user.id)
         company = Company.query.get(doctor.company_id)
         workers = Worker.query.filter_by(company_id=doctor.company_id).all()
-    return render_template('workers.html', title='Работники', form=form,
-                           company=company, workers=workers)
+    return render_template('workers.html', title='Работники', form=form, company=company, workers=workers)
 
 
 @bp.route('/worker/<id>')
@@ -147,4 +152,4 @@ def edit_worker(id):
         form.middle_name.data = worker.middle_name
         form.second_name.data = worker.second_name
         form.email.data = worker.email
-    return render_template('edit_worker.html', title='Изменение данных работника', form=form)
+    return render_template('edit_worker.html', title='Изменение данных работника', worker=worker, form=form)

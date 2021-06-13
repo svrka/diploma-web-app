@@ -2,8 +2,8 @@
 
 {% block content %}
 <h1>{{ company.name }}!</h1>
-{% if company.avatar %}
-<img src="{{ url_for('main.uploads', path=company.avatar, filename=company.username) }}" style="width: 300px">
+{% if company.avatar_file %}
+<img src="{{ url_for('main.uploads', path=company.uploads_path, filename=company.avatar_file) }}" style="width: 300px">
 {% endif %}
 {% if company.id == current_user.id %}
 <p><a href="{{ url_for('main.edit_user') }}">Изменить данные</a></p>

@@ -2,6 +2,9 @@
 
 {% block content %}
 <h1>{{ worker.second_name }} {{ worker.first_name }} {{ worker.middle_name }}</h1>
+{% if worker.avatar_file %}
+<img src="{{ url_for('main.uploads', path=worker.uploads_path, filename=worker.avatar_file) }}" style="width: 300px">
+{% endif %}
 <p>{{ worker.email }}</p>
 {% if current_user.id == worker.company_id %}
 <p><a href="{{ url_for('main.edit_worker', id=worker.id) }}">Изменить данные</a></p>
