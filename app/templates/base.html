@@ -11,27 +11,52 @@
 </head>
 
 <body>
-    <div>Диплом:
-        <a href="{{ url_for('main.index') }}">Главная</a>
-        {% if current_user.role == 'company' %}
-        <a href="{{ url_for('main.company', username=current_user.username) }}">Компания</a>
-        {% elif current_user.role == 'doctor' %}
-        <a href="{{ url_for('main.doctor', username=current_user.username) }}">Доктор</a>
-        {% endif %}
-        {% if current_user.is_anonymous %}
-        <a href="{{ url_for('auth.login') }}">Войти</a>
-        {% else %}
-        <a id="link-exams" href="{{ url_for('exam.view_all') }}">Обследования
-            {% set new_messages = current_user.new_messages() %}
-            {% if new_messages %}
-            <span id="exams-count" class="badge">
-                {{ new_messages }}
-            </span>
-            {% endif %}
-        </a>
-        <a href="{{ url_for('auth.logout') }}">Выйти</a>
-        {% endif %}
-        <hr>
+    <div id="workplace">
+        <div id="navbar" class="workplace-div">
+            <span class="navbar-logo">Диплом</span>
+            <ul class="navbar-ul">
+                <a href="{{ url_for('main.index') }}">
+                    <li class="navbar-li">Главная</li>
+                </a>
+                {% if current_user.role == 'company' %}
+                <a href="{{ url_for('main.company', username=current_user.username) }}">
+                    <li class="navbar-li">Компания</li>
+                </a>
+                {% elif current_user.role == 'doctor' %}
+                <a href="{{ url_for('main.doctor', username=current_user.username) }}">
+                    <li class="navbar-li">Доктор</li>
+                </a>
+                {% endif %}
+                {% if current_user.is_authenticated %}
+                <a id="link-exams" href="{{ url_for('exam.view_all') }}">
+                    <li class="navbar-li">
+                        Обследования
+                        {% set new_messages = current_user.new_messages() %}
+                        {% if new_messages %}
+                        <span id="exams-count" class="badge">{{ new_messages }}</span>
+                        {% endif %}
+                    </li>
+                </a>
+                {% endif %}
+            </ul>
+            <ul class="navbar-ul navbar-ul-btm">
+                {% if current_user.is_anonymous %}
+                <a href="{{ url_for('auth.login') }}">
+                    <li class="navbar-li">Вход</li>
+                </a>
+                <a href="{{ url_for('auth.register_company') }}">
+                    <li class="navbar-li">Регистрация</li>
+                </a>
+                {% else %}
+                <a href="{{ url_for('auth.logout') }}">
+                    <li class="navbar-li">Выйти</li>
+                </a>
+                {% endif %}
+            </ul>
+        </div>
+        <div id="content-block" class="workplace-div">{% block content %}{% endblock %}</div>
+    </div>
+    <div>
         {% with messages = get_flashed_messages() %}
         {% if messages %}
         <ul>
@@ -41,10 +66,12 @@
         </ul>
         {% endif %}
         {% endwith %}
-        {% block content %}{% endblock %}
     </div>
 </body>
 
-<script type="text/javascript" src="{{ url_for('static', filename='chat.js') }}"></script>
+{% if current_user.is_authenticated %}
+<script type="text/javascript" src="{{ url_for('static', filename='js/chat.js') }}"></script>
+{% endif %}
+<script type="text/javascript" src="{{ url_for('static', filename='js/style.js') }}"></script>
 
 </html>

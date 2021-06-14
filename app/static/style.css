@@ -1,3 +1,143 @@
+@font-face {
+  font-family: Rubik;
+  src: url(Rubik-VariableFont_wght.ttf);
+}
+
+@keyframes move-down {
+  0% {
+    bottom: -20px;
+    opacity: 0;
+  }
+  40% {
+    bottom: -20px;
+    opacity: 0;
+  }
+  100% {
+    bottom: -40px;
+  }
+}
+
+@keyframes move-up {
+  0% {
+    top: -20px;
+    opacity: 0;
+  }
+  40% {
+    top: -20px;
+    opacity: 0;
+  }
+  100% {
+    top: -40px;
+  }
+}
+
+* {
+  font-family: Rubik, Arial, Calibri;
+  list-style-type: none;
+  text-decoration: none;
+}
+
+body {
+  background-color: #e9e6f0;
+  margin: 0;
+}
+
+/* Base template */
+#workplace {
+  display: inline-flex;
+  width: 100%;
+  height: 100%;
+}
+
+.workplace-div {
+  position: relative;
+  top: 0;
+  left: 0;
+  margin: 0.5%;
+  height: 97%;
+  border-radius: 20px;
+}
+
+#navbar {
+  /* position: relative;
+  top: 0;
+  left: 0;
+  margin: 0.5%; */
+  width: 200px;
+  /* height: 97%;
+  border-radius: 20px; */
+  background-color: #5954aa;
+  display: grid;
+  grid-template-rows: 1fr 3fr 1fr;
+  align-items: center;
+  text-align: center;
+  color: #e9e6f0;
+}
+
+.navbar-ul {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+.navbar-li {
+  margin: 5px 10%;
+  width: 80%;
+  height: 50px;
+  line-height: 50px;
+  border-radius: 25px;
+  color: #e9e6f0;
+}
+
+.navbar-li:hover {
+  background-color: #e9e6f0;
+  color: #5954aa;
+}
+
+.active-page {
+  position: relative;
+  width: 80%;
+  margin-left: 20% !important;
+  background-color: #e9e6f0;
+  color: #5954aa;
+  border-radius: 25px 0 0 25px;
+  transition: margin-left 250ms linear, border-radius 250ms linear;
+}
+
+.active-page::before,
+.active-page::after {
+  content: "";
+  position: absolute;
+  background-color: transparent;
+  height: 40px;
+  right: 0;
+  width: 20px;
+}
+
+.active-page::before {
+  bottom: -40px;
+  border-top-right-radius: 20px;
+  box-shadow: 0 -20px 0 0 #e9e6f0;
+  animation: move-down 500ms;
+}
+
+.active-page::after {
+  top: -40px;
+  border-bottom-right-radius: 20px;
+  box-shadow: 0 20px 0 0 #e9e6f0;
+  animation: move-up 500ms;
+}
+
+#content-block {
+  width: 100%;
+  background-color: #fff;
+  display: grid;
+  /* grid-template-rows: 1fr 3fr 1fr; */
+  align-items: center;
+  text-align: center;
+  color: #000;
+}
+
 #messages p {
   background-color: #fff;
   transition: background-color 1000ms linear;
