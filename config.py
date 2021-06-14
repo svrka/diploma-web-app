@@ -20,5 +20,5 @@ class Config(object):
     ADMINS = ['negoda.timur.04@gmail.com']
 
     UPLOAD_PATH = 'uploads'
-    MAX_CONTENT_LENGTH = 2 * 1024 * 1024
-    UPLOAD_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif']
+    MAX_CONTENT_LENGTH = 7 * 1024 * 1024
+    UPLOAD_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.PNG', '.gif']

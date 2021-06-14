@@ -84,7 +84,6 @@ def upload_avatar(table, id):
     if filename != '':
         file_ext = os.path.splitext(filename)[1]
         if file_ext not in current_app.config['UPLOAD_EXTENSIONS']:
-            # TODO: error handler
             abort(400)
         user.avatar_file = filename
         db.session.commit()

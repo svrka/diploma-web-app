@@ -60,7 +60,9 @@ class Company(User):
     id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
 
     name = db.Column(db.String(64), index=True)
+    phone = db.Column(db.String(16), index=True)
     about = db.Column(db.String(140))
+    address = db.Column(db.String(64))
 
     workers = db.relationship('Worker', backref='company', lazy='dynamic')
     examinations = db.relationship(
@@ -77,10 +79,13 @@ class Doctor(User):
     company_id = db.Column(db.Integer, db.ForeignKey('company.id'))
 
     first_name = db.Column(db.String(64), index=True)
+    middle_name = db.Column(db.String(64), index=True)
     second_name = db.Column(db.String(64), index=True)
+    phone = db.Column(db.String(16), index=True)
+    clinic = db.Column(db.String(64), index=True)
 
     def __repr__(self):
-        return 'Доктор {} {}'.format(self.first_name, self.second_name)
+        return 'Доктор {} {} {}'.format(self.first_name, self.second_name, self.middle_name)
 
     def get_registration_token(self, expires_in=600):
         return jwt.encode(
@@ -100,25 +105,30 @@ class Doctor(User):
 
 class Worker(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    license = db.Column(db.String(10), index=True, unique=True)
     first_name = db.Column(db.String(64), index=True)
     second_name = db.Column(db.String(64), index=True)
     middle_name = db.Column(db.String(64), index=True)
+    birth = db.Column(db.DateTime)
     email = db.Column(db.String(120), index=True)
     uploads_path = db.Column(db.String(64), index=True, unique=True)
     avatar_file = db.Column(db.String(64), index=True)
 
     company_id = db.Column(db.Integer, db.ForeignKey('company.id'))
+
     examinations = db.relationship(
         'Examination', backref='worker', lazy='dynamic')
 
     def __repr__(self):
-        return '{}'.format(self.second_name)
+        return '{} {} {}'.format(self.second_name, self.first_name, self.middle_name)
 
 
 class Examination(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    temperature = db.Column(db.Numeric(2, 1))
+    pulse = db.Column(db.Integer)
     blood_pressure = db.Column(db.String(10))
-    alcohol_level = db.Column(db.String(10))
+    alcohol_level = db.Column(db.Numeric(1, 2))
     datetime = db.Column(db.DateTime, default=datetime.utcnow)
     close_time = db.Column(db.DateTime)
     close_status = db.Column(db.Boolean)
@@ -129,7 +139,7 @@ class Examination(db.Model):
         'Message', backref='examination', lazy='dynamic')
 
     def __repr__(self):
-        return 'Дата: {}, Давление: {}, Алкоголь: {}'.format(self.datetime, self.blood_pressure, self.alcohol_level)
+        return 'Дата: {}'.format(self.datetime)
 
 
 class Message(db.Model):

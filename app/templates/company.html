@@ -4,6 +4,8 @@
 <h1>{{ company.name }}!</h1>
 {% if company.avatar_file %}
 <img src="{{ url_for('main.uploads', path=company.uploads_path, filename=company.avatar_file) }}" style="width: 300px">
+{% else %}
+<img src="../static/default-avatar.png" alt="Default avatar" style="width: 300px">
 {% endif %}
 {% if company.id == current_user.id %}
 <p><a href="{{ url_for('main.edit_user') }}">Изменить данные</a></p>

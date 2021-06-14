@@ -20,7 +20,15 @@ def method_not_allowed_error(error):
     return render_template('errors/404.html'), 405
 
 
-@bp.errorhandler(413)
-def too_large(error):
+@bp.app_errorhandler(413)
+def too_large_error(error):
     # ? Template
-    return 'Слишком большой файл', 413
+    db.session.rollback()
+    return render_template('errors/500.html'), 413
+
+
+@bp.app_errorhandler(400)
+def bad_request_error(error):
+    # ? Template
+    db.session.rollback()
+    return render_template('errors/500.html'), 400
