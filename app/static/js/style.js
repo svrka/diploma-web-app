@@ -5,3 +5,12 @@ $(function () {
         }
     });
 });
+
+$(function () {
+    if ($('#flash-messages').children().length > 0) {
+        $('#flash-messages').addClass('new-messages');
+    };
+
+    n = $('.flash-msg-li').length;
+    $('#flash-msg-count').text(n);
+});

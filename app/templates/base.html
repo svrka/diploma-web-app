@@ -56,15 +56,18 @@
         </div>
         <div id="content-block" class="workplace-div">{% block content %}{% endblock %}</div>
     </div>
-    <div>
+    <div id="flash-messages">
+        <span id="flash-msg-count"></span>
         {% with messages = get_flashed_messages() %}
-        {% if messages %}
-        <ul>
+        <ul class="flash-msg-ul">
+            {% if messages %}
             {% for message in messages %}
-            <li>{{ message }}</li>
+            <li class="flash-msg-li">{{ message }}</li>
             {% endfor %}
+            {% endif %}
+            <li class="flash-msg-li">Поздравляем с регистрацией!</li>
+            <li class="flash-msg-li">Еще одно сообщение...</li>
         </ul>
-        {% endif %}
         {% endwith %}
     </div>
 </body>
