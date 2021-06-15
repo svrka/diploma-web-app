@@ -31,29 +31,6 @@
   }
 }
 
-@keyframes flash-msg-view {
-  0% {
-    /* opacity: 0; */
-    height: 40px;
-    width: 40px;
-  }
-  20% {
-    /* opacity: 1; */
-    height: 40px;
-    width: 100%;
-  }
-  80% {
-    /* opacity: 1; */
-    height: 100%;
-    width: 100%;
-  }
-  100% {
-    /* opacity: 0; */
-    height: 100%;
-    width: 40px;
-  }
-}
-
 :root {
   --main-bg-color: #e9e6f0;
   --navbar-bg-color: #5954aa;
@@ -171,43 +148,58 @@ ul {
 
 /* Base template: flash messages */
 #flash-messages {
-  width: 300px;
+  display: none;
+  height: 40px;
+  width: 40px;
   position: fixed;
   top: 0;
   right: 0;
   margin: 1%;
   color: #fff;
+  transition: width 500ms ease-in-out;
+  text-align: center;
+}
+
+.view-flash-msg {
+  width: 300px !important;
 }
 
 #flash-msg-count {
   position: absolute;
   top: 0;
   right: 0;
-  width: 40px;
+  width: 100%;
   height: 40px;
   line-height: 40px;
   background-color: var(--navbar-bg-color);
   border-radius: 20px;
-  text-align: center;
+  transition: color 500ms ease-in-out;
 }
 
-.flash-msg-ul {
-  float: right;
-  width: 0;
-}
-
-#flash-messages:hover .flash-msg-ul {
-  animation: flash-msg-view 5s;
+.view-flash-msg #flash-msg-count {
+  color: var(--navbar-bg-color);
 }
 
 .flash-msg-li {
+  position: relative;
+  top: 0;
   width: 100%;
   height: 40px;
   line-height: 40px;
   border-radius: 20px;
-  margin-bottom: 5px;
+  margin-bottom: -40px;
   background-color: var(--navbar-bg-color);
-  text-align: center;
+  white-space: nowrap;
+  color: var(--navbar-bg-color);
+  transition: margin 500ms ease-in-out, color 500ms ease-in-out;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.view-flash-msg-li {
+  color: #fff;
+  margin-bottom: 5px;
+  z-index: 2;
 }
 
 /* Chat */

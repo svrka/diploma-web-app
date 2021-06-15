@@ -7,10 +7,32 @@ $(function () {
 });
 
 $(function () {
-    if ($('#flash-messages').children().length > 0) {
-        $('#flash-messages').addClass('new-messages');
+    var flashMsg = $('#flash-messages');
+    var flashMsgUl = $('#flash-msg-ul');
+    var flashMsgLi = $('.flash-msg-li');
+
+    var n = flashMsgLi.length;
+
+    var showFlashMsg = function () {
+        flashMsg.addClass('view-flash-msg');
+        flashMsgUl.addClass('view-flash-msg-ul');
+        flashMsgLi.addClass('view-flash-msg-li');
     };
 
-    n = $('.flash-msg-li').length;
-    $('#flash-msg-count').text(n);
+    var hideFlashMsg = function () {
+        flashMsg.removeClass('view-flash-msg');
+        flashMsgUl.removeClass('view-flash-msg-ul');
+        flashMsgLi.removeClass('view-flash-msg-li');
+    };
+
+    if (n) {
+        $('#flash-msg-count').text(n);
+        flashMsg.css('display', 'block');
+        setTimeout(showFlashMsg, 500);
+        setTimeout(hideFlashMsg, 4500);
+    } else {
+        console.log('hey');
+    };
+
+    flashMsg.hover(showFlashMsg, hideFlashMsg);
 });
