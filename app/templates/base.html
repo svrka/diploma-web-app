@@ -7,55 +7,87 @@
     <title>Добро пожаловать в Диплом</title>
     {% endif %}
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 </head>
 
 <body>
-    <div id="workplace">
-        <div id="navbar" class="workplace-div">
-            <span class="navbar-logo">Диплом</span>
-            <ul class="navbar-ul">
-                <a href="{{ url_for('main.index') }}">
-                    <li class="navbar-li">Главная</li>
-                </a>
-                {% if current_user.role == 'company' %}
-                <a href="{{ url_for('main.company', username=current_user.username) }}">
-                    <li class="navbar-li">Компания</li>
-                </a>
-                {% elif current_user.role == 'doctor' %}
-                <a href="{{ url_for('main.doctor', username=current_user.username) }}">
-                    <li class="navbar-li">Доктор</li>
-                </a>
-                {% endif %}
-                {% if current_user.is_authenticated %}
-                <a id="link-exams" href="{{ url_for('exam.view_all') }}">
-                    <li class="navbar-li">
-                        Обследования
-                        {% set new_messages = current_user.new_messages() %}
-                        {% if new_messages %}
-                        <span id="exams-count" class="badge">{{ new_messages }}</span>
-                        {% endif %}
-                    </li>
-                </a>
-                {% endif %}
-            </ul>
-            <ul class="navbar-ul navbar-ul-btm">
-                {% if current_user.is_anonymous %}
-                <a href="{{ url_for('auth.login') }}">
-                    <li class="navbar-li">Вход</li>
-                </a>
-                <a href="{{ url_for('auth.register_company') }}">
-                    <li class="navbar-li">Регистрация</li>
-                </a>
-                {% else %}
-                <a href="{{ url_for('auth.logout') }}">
-                    <li class="navbar-li">Выйти</li>
-                </a>
-                {% endif %}
-            </ul>
+    <nav id="navbar" class="radius-div">
+        <div class="navbar-logo">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Логотип">
+            <span>Диплом</span>
         </div>
-        <div id="content-block" class="workplace-div">{% block content %}{% endblock %}</div>
-    </div>
+        <ul>
+            {% if current_user.is_authenticated %}
+            <li>
+                <a class="navbar-a" href="{{ url_for('main.doctor', username=current_user.username) }}">
+                    <span class="material-icons-outlined">dashboard</span>
+                    <span class="navbar-link-name">Главная</span>
+                </a>
+            </li>
+            {% if current_user.role == 'company' %}
+            <li>
+                <a class="navbar-a" href="{{ url_for('main.company', username=current_user.username) }}">
+                    <span class="material-icons-outlined">apartment</span>
+                    <span class="navbar-link-name">Компания</span>
+                </a>
+            </li>
+            {% elif current_user.role == 'doctor' %}
+            <li>
+                <a class="navbar-a" href="{{ url_for('main.doctor', username=current_user.username) }}">
+                    <span class="material-icons-outlined">medical_services</span>
+                    <span class="navbar-link-name">Доктор</span>
+                </a>
+            </li>
+            {% endif %}
+            <li>
+                <a class="navbar-a" href="{{ url_for('main.workers') }}">
+                    <span class="material-icons-outlined">group_add</span>
+                    <span class="navbar-link-name">Работники</span>
+                </a>
+            </li>
+            <li>
+                <a id="link-exams" class="navbar-a" href="{{ url_for('exam.view_all') }}">
+                    <span class="material-icons-outlined">fact_check</span>
+                    <span class="navbar-link-name">Обследования</span>
+                    {% set new_messages = current_user.new_messages() %}
+                    {% if new_messages %}
+                    <span id="exams-count" class="badge">{{ new_messages }}</span>
+                    {% endif %}
+                </a>
+            </li>
+            <li>
+                <a class="navbar-a" href="{{ url_for('main.edit_user') }}">
+                    <span class="material-icons-outlined">settings</span>
+                    <span class="navbar-link-name">Настройки</span>
+                </a>
+            </li>
+            {% endif %}
+            <li>
+                <a class="navbar-a" href="{{ url_for('main.index') }}">
+                    <span class="material-icons-outlined">info</span>
+                    <span class="navbar-link-name">О дипломе</span>
+                </a>
+            </li>
+        </ul>
+        <ul>
+            {% if current_user.is_anonymous %}
+            <li>
+                <a class="navbar-a" href="{{ url_for('auth.login') }}">
+                    <span class="material-icons-outlined">login</span>
+                    <span class="navbar-link-name">Вход</span>
+                </a>
+            </li>
+            {% else %}
+            <li>
+                <a class="navbar-a" href="{{ url_for('auth.logout') }}">
+                    <span class="material-icons-outlined">logout</span>
+                    <span class="navbar-link-name">Выйти</span>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
     <div id="flash-messages">
         <span id="flash-msg-count"></span>
         {% with messages = get_flashed_messages() %}
@@ -65,10 +97,13 @@
             <li class="flash-msg-li">{{ message }}</li>
             {% endfor %}
             {% endif %}
-            <li class="flash-msg-li">Поздравляем с регистрацией!</li>
+            <!-- <li class="flash-msg-li">Поздравляем с регистрацией!</li> -->
             <!-- <li class="flash-msg-li">Еще одно сообщение...</li> -->
         </ul>
         {% endwith %}
+    </div>
+    <div id="content-block" class="radius-div">
+        {% block content %}{% endblock %}
     </div>
 </body>
 

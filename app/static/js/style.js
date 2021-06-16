@@ -1,7 +1,7 @@
 $(function () {
-    $('#navbar a').each(function () {
+    $('.navbar-a').each(function () {
         if ($(this).prop('pathname') == $(location).attr('pathname')) {
-            $(this).children('li').addClass('active-page');
+            $(this).addClass('active-page');
         }
     });
 });
@@ -26,13 +26,12 @@ $(function () {
     };
 
     if (n) {
-        $('#flash-msg-count').text(n);
-        flashMsg.css('display', 'block');
+        flashMsg.fadeIn('slow');
+        // flashMsg.css('display', 'block');
         setTimeout(showFlashMsg, 500);
         setTimeout(hideFlashMsg, 4500);
-    } else {
-        console.log('hey');
+        setTimeout(function () { flashMsg.fadeOut('slow') }, 5000);
     };
 
-    flashMsg.hover(showFlashMsg, hideFlashMsg);
+    // flashMsg.hover(showFlashMsg, hideFlashMsg);
 });

@@ -32,8 +32,13 @@
 }
 
 :root {
+  --accent-color: #5954aa;
   --main-bg-color: #e9e6f0;
-  --navbar-bg-color: #5954aa;
+  --blur-bg-color: rgba(89, 84, 170, 0.2);
+  --block-bg-color: #fff;
+  --white-font-color: #fff;
+  --black-font-color: #000;
+  --gradient-bg: linear-gradient(#736ec2, #5954aa);
 }
 
 * {
@@ -43,59 +48,69 @@
 }
 
 body {
+  display: flex;
   background-color: var(--main-bg-color);
-  margin: 0;
 }
 
 ul {
   margin: 0;
   padding: 0;
-  width: 100%;
 }
 
-/* Base template */
-#workplace {
-  display: inline-flex;
-  width: 100%;
-  height: 100%;
-}
-
-.workplace-div {
-  position: relative;
-  top: 0;
-  left: 0;
-  margin: 0.5%;
-  height: 97%;
-  border-radius: 20px;
+.radius-div {
+  border-radius: 25px;
 }
 
 /* Base template: navigation bar */
 #navbar {
-  width: 300px;
-  background-color: var(--navbar-bg-color);
+  background: var(--gradient-bg);
+  background-color: var(--accent-color);
   display: grid;
   grid-template-rows: 1fr 3fr 1fr;
   align-items: center;
   text-align: center;
-  color: #e9e6f0;
+  width: 300px;
+  color: var(--white-font-color);
+  margin-right: 8px;
 }
 
-.navbar-ul-btm {
+.navbar-logo img {
+  height: 50px;
+}
+
+.navbar-logo span {
+  display: block;
+}
+
+#navbar ul {
   margin-bottom: 25px;
 }
 
-.navbar-li {
+.navbar-a {
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  align-items: center;
   margin: 5px 10%;
   width: 80%;
-  height: 50px;
-  line-height: 50px;
-  border-radius: 25px;
-  color: #e9e6f0;
+  height: 40px;
+  line-height: 40px;
+  border-radius: 20px;
+  color: var(--white-font-color);
 }
 
-.navbar-li:hover {
+.navbar-a:hover {
   background-color: var(--main-bg-color);
-  color: #5954aa;
+  color: var(--accent-color);
+}
+
+.material-icons-outlined {
+  font-size: 1.3em !important;
+  text-align: right;
+}
+
+.navbar-link-name {
+  text-align: left;
+  margin-left: 5%;
 }
 
 .active-page {
@@ -103,8 +118,8 @@ ul {
   width: 80%;
   margin-left: 20% !important;
   background-color: var(--main-bg-color);
-  color: #5954aa;
-  border-radius: 25px 0 0 25px;
+  color: var(--accent-color);
+  border-radius: 20px 0 0 20px;
   transition: margin-left 250ms linear, border-radius 250ms linear;
   z-index: 0;
 }
@@ -134,18 +149,6 @@ ul {
   animation: move-up 500ms;
 }
 
-/* Base template: content block */
-#content-block {
-  width: 100%;
-  /* ? transparent bc */
-  background-color: #fff;
-  display: grid;
-  /* grid-template-rows: 1fr 3fr 1fr; */
-  align-items: center;
-  text-align: center;
-  color: #000;
-}
-
 /* Base template: flash messages */
 #flash-messages {
   display: none;
@@ -155,7 +158,7 @@ ul {
   top: 0;
   right: 0;
   margin: 1%;
-  color: #fff;
+  color: var(--accent-color);
   transition: width 500ms ease-in-out;
   text-align: center;
 }
@@ -171,13 +174,15 @@ ul {
   width: 100%;
   height: 40px;
   line-height: 40px;
-  background-color: var(--navbar-bg-color);
+  background-color: var(--blur-bg-color);
+  backdrop-filter: blur(20px);
   border-radius: 20px;
-  transition: color 500ms ease-in-out;
+  transition: color 500ms ease-in-out, background-color 500ms ease-in-out;
 }
 
 .view-flash-msg #flash-msg-count {
-  color: var(--navbar-bg-color);
+  background-color: transparent;
+  color: transparent;
 }
 
 .flash-msg-li {
@@ -188,18 +193,27 @@ ul {
   line-height: 40px;
   border-radius: 20px;
   margin-bottom: -40px;
-  background-color: var(--navbar-bg-color);
+  background-color: var(--blur-bg-color);
+  backdrop-filter: blur(10px);
   white-space: nowrap;
-  color: var(--navbar-bg-color);
+  color: transparent;
   transition: margin 500ms ease-in-out, color 500ms ease-in-out;
   z-index: -1;
   overflow: hidden;
 }
 
 .view-flash-msg-li {
-  color: #fff;
+  color: inherit;
   margin-bottom: 5px;
   z-index: 2;
+}
+
+/* Base template: content block */
+#content-block {
+  width: 100%;
+  text-align: center;
+  background-color: var(--block-bg-color);
+  color: var(--black-font-color);
 }
 
 /* Chat */
