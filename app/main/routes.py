@@ -61,7 +61,7 @@ def edit_user():
             user.about = form.about.data
         db.session.commit()
         flash('Данные сохранены')
-        return redirect(url_for('main.edit_doctor'))
+        return redirect(url_for('main.edit_user'))
     elif request.method == 'GET':
         form.username.data = current_user.username
         form.email.data = current_user.email

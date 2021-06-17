@@ -52,6 +52,9 @@ class User(UserMixin, db.Model):
                 Doctor.query.get(self.id).company_id).username
         return username
 
+    def get_name(self):
+        return Company.query.get(self.id) if self.role == 'company' else Doctor.query.get(self.id)
+
     def new_messages(self):
         return Message.query.filter_by(recipient=self, status=True).with_entities(
             Message.exam_id).distinct().count()
@@ -80,7 +83,7 @@ class Company(User):
                              primaryjoin="Company.id == Doctor.company_id")
 
     def __repr__(self):
-        return 'Компания {}'.format(self.name)
+        return '{}'.format(self.name)
 
 
 class Doctor(User):
@@ -94,7 +97,7 @@ class Doctor(User):
     clinic = db.Column(db.String(64), index=True)
 
     def __repr__(self):
-        return 'Доктор {} {} {}'.format(self.first_name, self.second_name, self.middle_name)
+        return '{} {}'.format(self.second_name, self.first_name)
 
     def get_registration_token(self, expires_in=600):
         return jwt.encode(

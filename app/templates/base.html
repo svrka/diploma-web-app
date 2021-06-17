@@ -13,87 +13,110 @@
 
 <body>
     <nav id="navbar" class="radius-div">
-        <div class="navbar-logo">
-            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Логотип">
-            <span>Диплом</span>
-        </div>
-        <ul>
-            {% if current_user.is_authenticated %}
-            <li>
-                <a class="navbar-a" href="{{ url_for('main.dashboard') }}">
-                    <span class="material-icons-outlined">dashboard</span>
-                    <span class="navbar-link-name">Главная</span>
-                </a>
-            </li>
-            <li>
-                {% if current_user.role == 'company' %}
-                <a class="navbar-a" href="{{ url_for('main.company', username=current_user.username) }}">
-                    {% elif current_user.role == 'doctor' %}
-                    <a class="navbar-a" href="{{ url_for('main.company', username=current_user.get_username()) }}">
-                        {% endif %}
-                        <span class="material-icons-outlined">apartment</span>
-                        <span class="navbar-link-name">Компания</span>
-                    </a>
-            </li>
-            <li>
-                {% if current_user.role == 'doctor' %}
-                <a class="navbar-a" href="{{ url_for('main.doctor', username=current_user.username) }}">
-                    {% elif current_user.role == 'company' and current_user.get_username() %}
-                    <a class="navbar-a" href="{{ url_for('main.doctor', username=current_user.get_username()) }}">
-                        {% else %}
-                        <a class="navbar-a" href="{{ url_for('auth.register_doctor') }}">
-                            {% endif %}
-                            <span class="material-icons-outlined">medical_services</span>
-                            <span class="navbar-link-name">Доктор</span>
-                        </a>
-            </li>
-            <li>
-                <a class="navbar-a" href="{{ url_for('main.workers') }}">
-                    <span class="material-icons-outlined">group_add</span>
-                    <span class="navbar-link-name">Работники</span>
-                </a>
-            </li>
-            <li>
-                <a id="link-exams" class="navbar-a" href="{{ url_for('exam.view_all') }}">
-                    <span class="material-icons-outlined">fact_check</span>
-                    <span class="navbar-link-name">Обследования</span>
-                    {% set new_messages = current_user.new_messages() %}
-                    {% if new_messages %}
-                    <span id="exams-count" class="badge">{{ new_messages }}</span>
+        {% if current_user.is_authenticated %}
+        {% if current_user.role == 'company' %}
+        <a href="{{ url_for('main.company', username=current_user.username) }}">
+            {% elif current_user.role == 'doctor' %}
+            <a href="{{ url_for('main.doctor', username=current_user.username) }}">
+                {% endif %}
+                <div class="navbar-profile">
+                    {% if current_user.avatar_file %}
+                    <img src="{{ url_for('main.uploads', path=current_user.uploads_path, filename=current_user.avatar_file) }}"
+                        alt="Аватар">
+                    {% else %}
+                    <img src="../static/img/default-avatar.png" alt="Стандартный аватар">
                     {% endif %}
-                </a>
-            </li>
-            <li>
-                <a class="navbar-a" href="{{ url_for('main.edit_user') }}">
-                    <span class="material-icons-outlined">settings</span>
-                    <span class="navbar-link-name">Настройки</span>
-                </a>
-            </li>
-            {% endif %}
-            <li>
-                <a class="navbar-a" href="{{ url_for('main.index') }}">
-                    <span class="material-icons-outlined">info</span>
-                    <span class="navbar-link-name">О дипломе</span>
-                </a>
-            </li>
-        </ul>
-        <ul>
-            {% if current_user.is_anonymous %}
-            <li>
-                <a class="navbar-a" href="{{ url_for('auth.login') }}">
-                    <span class="material-icons-outlined">login</span>
-                    <span class="navbar-link-name">Вход</span>
-                </a>
-            </li>
+                    <span class="navbar-profile-name">{{ current_user.get_name() }}</span>
+                    {% if current_user.role == 'company' %}
+                    <span class="navbar-profile-role">Компания</span>
+                    {% elif current_user.role == 'doctor' %}
+                    <span class="navbar-profile-role">Доктор</span>
+                    {% endif %}
+                </div>
+            </a>
             {% else %}
-            <li>
-                <a class="navbar-a" href="{{ url_for('auth.logout') }}">
-                    <span class="material-icons-outlined">logout</span>
-                    <span class="navbar-link-name">Выйти</span>
-                </a>
-            </li>
+            <div class="navbar-logo">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Логотип">
+                <span>Диплом</span>
+            </div>
             {% endif %}
-        </ul>
+            <ul>
+                {% if current_user.is_authenticated %}
+                <li>
+                    <a class="navbar-a" href="{{ url_for('main.dashboard') }}">
+                        <span class="material-icons-outlined">dashboard</span>
+                        <span class="navbar-link-name">Главная</span>
+                    </a>
+                </li>
+                <li>
+                    {% if current_user.role == 'company' %}
+                    <a class="navbar-a" href="{{ url_for('main.company', username=current_user.username) }}">
+                        {% elif current_user.role == 'doctor' %}
+                        <a class="navbar-a" href="{{ url_for('main.company', username=current_user.get_username()) }}">
+                            {% endif %}
+                            <span class="material-icons-outlined">apartment</span>
+                            <span class="navbar-link-name">Компания</span>
+                        </a>
+                </li>
+                <li>
+                    {% if current_user.role == 'doctor' %}
+                    <a class="navbar-a" href="{{ url_for('main.doctor', username=current_user.username) }}">
+                        {% elif current_user.role == 'company' and current_user.get_username() %}
+                        <a class="navbar-a" href="{{ url_for('main.doctor', username=current_user.get_username()) }}">
+                            {% else %}
+                            <a class="navbar-a" href="{{ url_for('auth.register_doctor') }}">
+                                {% endif %}
+                                <span class="material-icons-outlined">medical_services</span>
+                                <span class="navbar-link-name">Доктор</span>
+                            </a>
+                </li>
+                <li>
+                    <a class="navbar-a" href="{{ url_for('main.workers') }}">
+                        <span class="material-icons-outlined">group_add</span>
+                        <span class="navbar-link-name">Работники</span>
+                    </a>
+                </li>
+                <li>
+                    <a id="link-exams" class="navbar-a" href="{{ url_for('exam.view_all') }}">
+                        <span class="material-icons-outlined">fact_check</span>
+                        <span class="navbar-link-name">Обследования</span>
+                        {% set new_messages = current_user.new_messages() %}
+                        {% if new_messages %}
+                        <span id="exams-count" class="badge">{{ new_messages }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                <li>
+                    <a class="navbar-a" href="{{ url_for('main.edit_user') }}">
+                        <span class="material-icons-outlined">settings</span>
+                        <span class="navbar-link-name">Настройки</span>
+                    </a>
+                </li>
+                {% endif %}
+                <li>
+                    <a class="navbar-a" href="{{ url_for('main.index') }}">
+                        <span class="material-icons-outlined">info</span>
+                        <span class="navbar-link-name">О дипломе</span>
+                    </a>
+                </li>
+            </ul>
+            <ul>
+                {% if current_user.is_anonymous %}
+                <li>
+                    <a class="navbar-a" href="{{ url_for('auth.login') }}">
+                        <span class="material-icons-outlined">login</span>
+                        <span class="navbar-link-name">Вход</span>
+                    </a>
+                </li>
+                {% else %}
+                <li>
+                    <a class="navbar-a" href="{{ url_for('auth.logout') }}">
+                        <span class="material-icons-outlined">logout</span>
+                        <span class="navbar-link-name">Выйти</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
     </nav>
     <div id="flash-messages">
         <span id="flash-msg-count"></span>

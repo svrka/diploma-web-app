@@ -37,7 +37,7 @@
 {% if worker.avatar_file %}
 <img src="{{ url_for('main.uploads', path=worker.uploads_path, filename=worker.avatar_file) }}" style="width: 300px">
 {% else %}
-<img src="../static/img/default-avatar.png" alt="Default avatar" style="width: 300px">
+<img src="../static/img/default-avatar.png" alt="Стандартный аватар" style="width: 300px">
 {% endif %}
 <form action="{{ url_for('main.upload_avatar', table='worker', id=worker.id) }}" method="POST"
     enctype="multipart/form-data">
