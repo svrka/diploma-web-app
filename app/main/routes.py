@@ -2,7 +2,7 @@ from app import db
 from app.decorators import worker_in_company, role_required, user_required
 from app.main import bp
 from app.models import Company, Doctor, Worker
-from app.main.forms import AddWorkerForm, EditCompanyForm, EditDoctorForm, EditWorkerForm
+from app.main.forms import AddWorkerForm, EditCompanyForm, EditDoctorForm, EditLoginInfoForm, EditWorkerForm
 from flask import render_template, flash, redirect, url_for, request, abort, current_app, send_from_directory
 from flask_login import current_user, login_required
 import os
@@ -41,37 +41,89 @@ def company(username):
     return render_template('company.html', title='Страница компании', company=company, dates=dates)
 
 
+# @bp.route('/edit_user', methods=['GET', 'POST'])
+# @login_required
+# def edit_user():
+#     if current_user.role == 'doctor':
+#         form = EditDoctorForm(current_user.username, current_user.email)
+#         user = Doctor.query.get(current_user.id)
+#     elif current_user.role == 'company':
+#         form = EditCompanyForm(current_user.username, current_user.email)
+#         user = Company.query.get(current_user.id)
+#     if form.validate_on_submit():
+#         current_user.username = form.username.data
+#         current_user.email = form.email.data
+#         if current_user.role == 'doctor':
+#             user.first_name = form.first_name.data
+#             user.second_name = form.second_name.data
+#         elif current_user.role == 'company':
+#             user.name = form.name.data
+#             user.about = form.about.data
+#         db.session.commit()
+#         flash('Данные сохранены')
+#         return redirect(url_for('main.edit_user'))
+#     elif request.method == 'GET':
+#         form.username.data = current_user.username
+#         form.email.data = current_user.email
+#         if current_user.role == 'doctor':
+#             form.first_name.data = user.first_name
+#             form.second_name.data = user.second_name
+#         elif current_user.role == 'company':
+#             form.name.data = user.name
+#             form.about.data = user.about
+#     return render_template('edit_user.html', title='Настройки', form=form)
+
+
 @bp.route('/edit_user', methods=['GET', 'POST'])
 @login_required
 def edit_user():
-    if current_user.role == 'doctor':
-        form = EditDoctorForm(current_user.username, current_user.email)
-        user = Doctor.query.get(current_user.id)
-    elif current_user.role == 'company':
-        form = EditCompanyForm(current_user.username, current_user.email)
-        user = Company.query.get(current_user.id)
-    if form.validate_on_submit():
-        current_user.username = form.username.data
-        current_user.email = form.email.data
-        if current_user.role == 'doctor':
-            user.first_name = form.first_name.data
-            user.second_name = form.second_name.data
-        elif current_user.role == 'company':
-            user.name = form.name.data
-            user.about = form.about.data
+    login_info_form = EditLoginInfoForm(
+        current_user.username, current_user.email, prefix='login')
+    company_info_form = EditCompanyForm(prefix='company')
+    doctor_info_form = EditDoctorForm(prefix='doctor')
+    if request.form.get('login-submit') and login_info_form.validate_on_submit():
+        current_user.username = login_info_form.username.data
+        current_user.email = login_info_form.email.data
         db.session.commit()
         flash('Данные сохранены')
         return redirect(url_for('main.edit_user'))
-    elif request.method == 'GET':
-        form.username.data = current_user.username
-        form.email.data = current_user.email
-        if current_user.role == 'doctor':
-            form.first_name.data = user.first_name
-            form.second_name.data = user.second_name
-        elif current_user.role == 'company':
-            form.name.data = user.name
-            form.about.data = user.about
-    return render_template('edit_user.html', title='Настройка доктора', form=form)
+    if current_user.role == 'company':
+        company = Company.query.get(current_user.id)
+    elif current_user.role == 'doctor':
+        doctor = Doctor.query.get(current_user.id)
+    if request.form.get('company-submit') and company_info_form.validate_on_submit():
+        company.name = company_info_form.name.data
+        company.phone = company_info_form.phone.data
+        company.address = company_info_form.address.data
+        company.about = company_info_form.about.data
+        db.session.commit()
+        flash('Данные сохранены')
+        return redirect(url_for('main.edit_user'))
+    if request.form.get('doctor-submit') and doctor_info_form.validate_on_submit():
+        doctor.second_name = doctor_info_form.second_name.data
+        doctor.first_name = doctor_info_form.first_name.data
+        doctor.middle_name = doctor_info_form.middle_name.data
+        doctor.phone = doctor_info_form.phone.data
+        doctor.clinic = doctor_info_form.clinic.data
+        db.session.commit()
+        flash('Данные сохранены')
+        return redirect(url_for('main.edit_user'))
+    if request.method == 'GET':
+        login_info_form.username.data = current_user.username
+        login_info_form.email.data = current_user.email
+        if current_user.role == 'company':
+            company_info_form.name.data = company.name
+            company_info_form.phone.data = company.phone
+            company_info_form.address.data = company.address
+            company_info_form.about.data = company.about
+        elif current_user.role == 'doctor':
+            doctor_info_form.second_name.data = doctor.second_name
+            doctor_info_form.first_name.data = doctor.first_name
+            doctor_info_form.middle_name.data = doctor.middle_name
+            doctor_info_form.phone.data = doctor.phone
+            doctor_info_form.clinic.data = doctor.clinic
+    return render_template('edit_user.html', title='Настройки', login_info_form=login_info_form,
+                           company_info_form=company_info_form, doctor_info_form=doctor_info_form)
 
 
 @bp.route('/upload_avatar/<table>/<id>', methods=['POST'])

@@ -42,6 +42,7 @@
   --body-bg-color: #f5f5f5;
   --input-bg-color: #eee;
   --blur-bg-color: rgba(115, 110, 194, 0.2);
+  --block-bg-color: #fff;
 
   --shadow: rgba(0, 0, 0, 0.1) 0px 5px 15px;
 
@@ -49,8 +50,6 @@
     var(--main-accent-color),
     var(--dark-accent-color)
   );
-
-  --block-bg-color: #fff;
 }
 
 * {
@@ -78,10 +77,6 @@ ul {
   padding: 0;
 }
 
-.radius-div {
-  border-radius: 25px;
-}
-
 /* Forms */
 form {
   display: flex;
@@ -93,13 +88,18 @@ form {
 
 input[type="submit"],
 input[type="text"],
-input[type="password"] {
+input[type="password"],
+textarea {
   width: 100px;
   border-width: 0;
   border-radius: 20px;
   height: 40px;
   width: 100%;
   color: var(--black-color);
+}
+
+input[type="file"] {
+  margin-top: 1em;
 }
 
 input[type="submit"] {
@@ -114,7 +114,8 @@ input[type="submit"]:hover {
 }
 
 input[type="text"],
-input[type="password"] {
+input[type="password"],
+textarea {
   background-color: var(--input-bg-color);
   text-align: center;
   margin-bottom: 1em;
@@ -124,6 +125,8 @@ input[type="password"] {
 
 input[type="text"]:hover,
 input[type="password"]:hover,
+textarea:hover,
+textarea:focus,
 input[type="text"]:focus,
 input[type="password"]:focus {
   opacity: 1;
@@ -131,6 +134,11 @@ input[type="password"]:focus {
 
 input[type="checkbox"] {
   cursor: pointer;
+}
+
+textarea {
+  height: 10em;
+  padding: 1em;
 }
 
 .not-empty-field {
@@ -342,6 +350,15 @@ input[type="checkbox"] {
 }
 
 /* Base template: content block */
+.radius-div {
+  border-radius: 25px;
+}
+
+.block-title {
+  margin: 1%;
+  font-size: 1.5em;
+}
+
 #content-block {
   display: flex;
   flex-direction: column;
@@ -355,10 +372,14 @@ input[type="checkbox"] {
 }
 
 .block {
+  display: grid;
   background-color: var(--block-bg-color);
   color: var(--black-color);
   box-shadow: var(--shadow);
   z-index: 2;
+  width: 100%;
+  align-items: center;
+  justify-items: center;
 }
 
 .full-page-view {
@@ -378,8 +399,27 @@ input[type="checkbox"] {
 .half-page-block {
   display: grid;
   grid-template-rows: 1fr 5fr 1fr;
+}
+
+.quarter-page-view {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  row-gap: 8px;
+  height: 100%;
+}
+
+.quarter-page-block {
+  height: 100%;
+}
+
+.quarter-page-block div {
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-items: center;
+}
+
+.quarter-page-block img {
+  height: 8em;
 }
 
 /* Chat */
