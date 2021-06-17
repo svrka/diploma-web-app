@@ -15,6 +15,11 @@ def index():
     return render_template('index.html', title='О дипломе')
 
 
+@bp.route('/dashboard')
+def dashboard():
+    abort(404)
+
+
 @bp.route('/doctor/<username>')
 @login_required
 @user_required
@@ -72,7 +77,6 @@ def edit_user():
 @bp.route('/upload_avatar/<table>/<id>', methods=['POST'])
 @login_required
 def upload_avatar(table, id):
-    # TODO: Default avatar
     uploaded_file = request.files['file']
     filename = secure_filename(uploaded_file.filename)
     if table == 'user':

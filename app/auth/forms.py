@@ -55,7 +55,7 @@ class DoctorRegistrationForm(FlaskForm):
                              DataRequired('Заполните это поле')])
     password2 = PasswordField('Повторите пароль', validators=[
                               DataRequired('Заполните это поле'), EqualTo('password')])
-    submit = SubmitField('Зарегитрироваться')
+    submit = SubmitField('Зарегиcтрироваться')
 
     def __init__(self, original_email, *args, **kwargs):
         super(DoctorRegistrationForm, self).__init__(*args, **kwargs)

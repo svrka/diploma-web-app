@@ -39,7 +39,8 @@
   --black-color: #333;
   --white-color: #f5f5f5;
 
-  --body-bg-color: #e9e6f0;
+  --body-bg-color: #f5f5f5;
+  /* --body-bg-color: #e9e6f0; */
   --input-bg-color: #eee;
   --blur-bg-color: rgba(115, 110, 194, 0.2);
 
@@ -327,6 +328,8 @@ input[type="checkbox"] {
 .block {
   background-color: var(--block-bg-color);
   color: var(--black-color);
+  box-shadow: var(--shadow);
+  z-index: 2;
 }
 
 .full-page-view {

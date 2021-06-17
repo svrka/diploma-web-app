@@ -5,7 +5,7 @@
 {% if worker.avatar_file %}
 <img src="{{ url_for('main.uploads', path=worker.uploads_path, filename=worker.avatar_file) }}" style="width: 300px">
 {% else %}
-<img src="../static/default-avatar.png" alt="Default avatar" style="width: 300px">
+<img src="../static/img/default-avatar.png" alt="Default avatar" style="width: 300px">
 {% endif %}
 <p>{{ worker.email }}</p>
 {% if current_user.id == worker.company_id %}

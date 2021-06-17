@@ -43,6 +43,15 @@ class User(UserMixin, db.Model):
             return
         return User.query.get(id)
 
+    def get_username(self):
+        username = ''
+        if self.role == 'company' and Company.query.get(self.id).doctor:
+            username = Company.query.get(self.id).doctor.username
+        elif self.role == 'doctor':
+            username = Company.query.get(
+                Doctor.query.get(self.id).company_id).username
+        return username
+
     def new_messages(self):
         return Message.query.filter_by(recipient=self, status=True).with_entities(
             Message.exam_id).distinct().count()
