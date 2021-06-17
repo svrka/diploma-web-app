@@ -5,23 +5,24 @@ from wtforms.validators import DataRequired, ValidationError, Email, EqualTo
 
 
 class LoginForm(FlaskForm):
-    username = StringField('Имя пользователя или email', validators=[
-        DataRequired('Заполните это поле')])
-    password = PasswordField('Пароль', validators=[
-                             DataRequired('Заполните это поле')])
+    username = StringField('Имя пользователя или email', render_kw={
+                           'placeholder': 'Имя пользователя или email'}, validators=[DataRequired('Заполните это поле')])
+    password = PasswordField('Пароль', render_kw={
+                             'placeholder': 'Пароль'}, validators=[DataRequired('Заполните это поле')])
     remember_me = BooleanField('Запомнить')
     submit = SubmitField('Войти')
 
 
 class CompanyRegistrationForm(FlaskForm):
-    username = StringField('Имя пользователя (для входа)', validators=[
-                           DataRequired('Заполните это поле')])
-    name = StringField('Имя компании')
-    email = StringField('Email', validators=[
+    username = StringField('Имя пользователя (для входа)', render_kw={
+                           'placeholder': 'Имя пользователя (для входа)'}, validators=[DataRequired('Заполните это поле')])
+    name = StringField('Имя компании', render_kw={
+                       'placeholder': 'Имя компании'})
+    email = StringField('Email', render_kw={'placeholder': 'Email'}, validators=[
                         DataRequired('Заполните это поле'), Email()])
-    password = PasswordField('Пароль', validators=[
+    password = PasswordField('Пароль', render_kw={'placeholder': 'Пароль'}, validators=[
                              DataRequired('Заполните это поле')])
-    password2 = PasswordField('Повторите пароль', validators=[
+    password2 = PasswordField('Повторите пароль', render_kw={'placeholder': 'Повторите пароль'}, validators=[
                               DataRequired('Заполните это поле'), EqualTo('password')])
     submit = SubmitField('Зарегистрироваться')
 

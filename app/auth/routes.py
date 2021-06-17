@@ -15,41 +15,27 @@ from werkzeug.urls import url_parse
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
-    form = LoginForm()
-    if form.validate_on_submit():
+    login_form = LoginForm(prefix='login')
+    if request.form.get('login-submit') and login_form.validate_on_submit():
         user = User.query.filter_by(
-            username=form.username.data).first()
+            username=login_form.username.data).first()
         if user is None:
             user = User.query.filter_by(
-                email=form.username.data).first()
-        if user is None or not user.check_password(form.password.data):
+                email=login_form.username.data).first()
+        if user is None or not user.check_password(login_form.password.data):
             flash('Неправильно введены данные')
             return redirect(url_for('auth.login'))
-        login_user(user, remember=form.remember_me.data)
+        login_user(user, remember=login_form.remember_me.data)
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
             next_page = url_for('main.company' if current_user.role == 'company' else 'main.doctor',
                                 username=current_user.username)
         return redirect(next_page)
-    return render_template('auth/login.html', title='Войти', form=form)
-
-
-@bp.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    return redirect(url_for('auth.login'))
-
-
-@bp.route('/register_company', methods=['GET', 'POST'])
-def register_company():
-    if current_user.is_authenticated:
-        return redirect(url_for('main.index'))
-    form = CompanyRegistrationForm()
-    if form.validate_on_submit():
-        company = Company(username=form.username.data, name=form.name.data,
-                          email=form.email.data, role='company')
-        company.set_password(form.password.data)
+    register_form = CompanyRegistrationForm(prefix='register')
+    if request.form.get('register-submit') and register_form.validate_on_submit():
+        company = Company(username=register_form.username.data, name=register_form.name.data,
+                          email=register_form.email.data, role='company')
+        company.set_password(register_form.password.data)
         if not os.path.exists('uploads/{}'.format(company.username)):
             os.mkdir('uploads/{}'.format(company.username))
         if not os.path.exists('uploads/{}/workers'.format(company.username)):
@@ -60,7 +46,36 @@ def register_company():
         db.session.commit()
         flash('Поздравляем с регистрацией!')
         return redirect(url_for('auth.login'))
-    return render_template('auth/register.html', title='Регистрация компании', form=form)
+    return render_template('auth/login.html', title='Авторизация', login_form=login_form, register_form=register_form)
+
+
+@bp.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('auth.login'))
+
+
+# @bp.route('/register_company', methods=['GET', 'POST'])
+# def register_company():
+#     if current_user.is_authenticated:
+#         return redirect(url_for('main.index'))
+#     form = CompanyRegistrationForm()
+#     if form.validate_on_submit():
+#         company = Company(username=form.username.data, name=form.name.data,
+#                           email=form.email.data, role='company')
+#         company.set_password(form.password.data)
+#         if not os.path.exists('uploads/{}'.format(company.username)):
+#             os.mkdir('uploads/{}'.format(company.username))
+#         if not os.path.exists('uploads/{}/workers'.format(company.username)):
+#             os.mkdir('uploads/{}/workers'.format(company.username))
+#         company.uploads_path = os.path.join(
+#             current_app.config['UPLOAD_PATH'], company.username)
+#         db.session.add(company)
+#         db.session.commit()
+#         flash('Поздравляем с регистрацией!')
+#         return redirect(url_for('auth.login'))
+#     return render_template('auth/register.html', title='Регистрация компании', form=form)
 
 
 @bp.route('/reset_password_request', methods=['GET', 'POST'])

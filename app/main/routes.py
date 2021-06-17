@@ -12,7 +12,7 @@ from werkzeug.utils import secure_filename
 @bp.route('/')
 @bp.route('/index')
 def index():
-    return render_template('index.html', title='Главная')
+    return render_template('index.html', title='О дипломе')
 
 
 @bp.route('/doctor/<username>')

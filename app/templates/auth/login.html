@@ -1,26 +1,52 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Войти</h1>
-<form action="" method="post" novalidate>
-    {{ form.hidden_tag() }}
-    <p>
-        {{ form.username.label }}<br>
-        {{ form.username(size=32) }}<br>
-        {% for error in form.username.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
-    <p>
-        {{ form.password.label }}<br>
-        {{ form.password(size=32) }}<br>
-        {% for error in form.password.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
-    <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
-    <p>{{ form.submit() }}</p>
-</form>
-<p>Забыли пароль? <a href="{{ url_for('auth.reset_password_request') }}">Нажмите для смены пароля!</a></p>
-<p>Новая компания? <a href="{{ url_for('auth.register_company') }}">Нажмите для регистрации!</a></p>
+<div class="half-page-view">
+    <div class="block radius-div half-page-block">
+        <h1>Войти</h1>
+        <form action="" method="post" novalidate>
+            {{ login_form.hidden_tag() }}
+            {{ login_form.username(size=32) }}
+            {% for error in login_form.username.errors %}
+            <span class="error-msg">{{ error }}</span>
+            {% endfor %}
+            {{ login_form.password(size=32) }}
+            {% for error in login_form.password.errors %}
+            <span class="error-msg">{{ error }}</span>
+            {% endfor %}
+            <div class="form-remember">
+                <span>{{ login_form.remember_me() }} {{ login_form.remember_me.label }}</span>
+                <a href="{{ url_for('auth.reset_password_request') }}">Забыли пароль?</a>
+            </div>
+            {{ login_form.submit() }}
+        </form>
+    </div>
+    <div class="block radius-div half-page-block">
+        <h1>Регистрация компании</h1>
+        <form action="" method="post" novalidate>
+            {{ register_form.hidden_tag() }}
+            {{ register_form.username(size=32) }}
+            {% for error in register_form.username.errors %}
+            <span class="error-msg">{{ error }}</span>
+            {% endfor %}
+            {{ register_form.name(size=32) }}
+            {% for error in register_form.name.errors %}
+            <span class="error-msg">{{ error }}</span>
+            {% endfor %}
+            {{ register_form.email(size=64) }}
+            {% for error in register_form.email.errors %}
+            <span class="error-msg">{{ error }}</span>
+            {% endfor %}
+            {{ register_form.password(size=32) }}
+            {% for error in register_form.password.errors %}
+            <span class="error-msg">{{ error }}</span>
+            {% endfor %}
+            {{ register_form.password2(size=32) }}
+            {% for error in register_form.password2.errors %}
+            <span class="error-msg">{{ error }}</span>
+            {% endfor %}
+            {{ register_form.submit() }}
+        </form>
+    </div>
+</div>
 {% endblock %}
