@@ -44,7 +44,7 @@ class EditDoctorForm(FlaskForm):
     first_name = StringField('Имя')
     middle_name = StringField('Отчество')
     phone = StringField('Телефон')
-    clinic = StringField('Адрес')
+    clinic = StringField('Клиника')
     submit = SubmitField('Сохранить')
 
 

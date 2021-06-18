@@ -12,7 +12,7 @@
 </head>
 
 <body>
-    <nav id="navbar" class="radius-div">
+    <nav id="navbar">
         {% if current_user.is_authenticated %}
         {% if current_user.role == 'company' %}
         <a href="{{ url_for('main.company', username=current_user.username) }}">
@@ -40,7 +40,7 @@
                 <span>Диплом</span>
             </div>
             {% endif %}
-            <ul>
+            <ul id="main-menu">
                 {% if current_user.is_authenticated %}
                 <li>
                     <a class="navbar-a" href="{{ url_for('main.dashboard') }}">

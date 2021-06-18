@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="half-page-view">
-    <div class="block radius-div half-page-block">
+    <div class="block block-layout">
         <h1>Войти</h1>
         <form action="" method="post" novalidate>
             {{ login_form.hidden_tag() }}
@@ -21,7 +21,7 @@
             {{ login_form.submit() }}
         </form>
     </div>
-    <div class="block radius-div half-page-block">
+    <div class="block block-layout">
         <h1>Регистрация компании</h1>
         <form action="" method="post" novalidate>
             {{ register_form.hidden_tag() }}

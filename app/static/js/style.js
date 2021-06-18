@@ -36,13 +36,5 @@ $(function () {
 });
 
 $(function () {
-    $('input:text, input:password').blur(function () {
-        if (!$(this).val()) {
-            $(this).removeClass('not-empty-field');
-        } else {
-            $(this).addClass('not-empty-field');
-        }
-    });
-
     $('.error-msg').prev().addClass('error-input');
 });
